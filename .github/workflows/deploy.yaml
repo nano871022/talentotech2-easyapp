@@ -31,7 +31,7 @@ jobs:
         run: npm install --prefix frontend
 
       - name: 4. Build Angular Application
-        run: npm run build --prefix frontend
+        run: npm run build --prefix frontend -- --base-href /static/
 
       - name: 5. Generate .env file with Secrets
         run: |
@@ -63,6 +63,7 @@ jobs:
             **/node_modules/**
             **/documents/**
             **/frontend/**
+            **/README.md
 
       # 3. Creación y Push del Tag de Versión (A5)
       # Este paso se ejecuta solo si el despliegue por FTP fue exitoso.
