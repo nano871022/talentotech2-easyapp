@@ -5,6 +5,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { authGuard } from './guards/auth.guard';
 import { LandingPageComponent } from './landing-page/landing-page';
 
+import { LandingPageComponent } from './landing-page/landing-page';
+
 export const routes: Routes = [
   {
     path: '',
