@@ -32,7 +32,10 @@ export class LoginComponent {
     this.errorMessage = null;
     const credentials = this.loginForm.getRawValue();
 
-    this.authService.login(credentials).subscribe({
+    this.authService.login({
+      usuario: credentials.usuario ?? '',
+      password: credentials.password ?? ''
+    }).subscribe({
       next: (success) => {
         if (success) {
           this.router.navigate(['/dashboard']);
