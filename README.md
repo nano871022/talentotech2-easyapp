@@ -68,19 +68,14 @@ Para configurar el proyecto en un entorno de desarrollo local, sigue estos pasos
 
 Como alternativa a la configuración manual, puedes usar el `Dockerfile` incluido para levantar un entorno de pruebas completo que simula la configuración de producción.
 
-1.  **Construir la Imagen de Docker:**
-    Desde la raíz del proyecto, ejecuta el siguiente comando. Esto creará una imagen llamada `easyapp`:
+1.  **Levantar el Entorno con Docker Compose:**
+    Desde la raíz del proyecto, ejecuta el siguiente comando. Esto construirá la imagen (si no existe), creará el contenedor y lo iniciará:
     ```bash
-    docker build -t easyapp .
+    docker-compose up
     ```
+    Para detener el entorno, presiona `Ctrl+C`. Si quieres que se ejecute en segundo plano, usa `docker-compose up -d`.
 
-2.  **Ejecutar el Contenedor:**
-    Una vez construida la imagen, iníciala con el siguiente comando. Esto expondrá la aplicación en el puerto 8080 de tu máquina local:
-    ```bash
-    docker run -p 8080:80 easyapp
-    ```
-
-3.  **Probar la Aplicación:**
+2.  **Probar la Aplicación:**
     -   **Frontend:** Abre tu navegador y ve a `http://localhost:8080/`. Serás redirigido automáticamente a la aplicación de Angular. Gracias a la configuración del servidor, todas las rutas de la aplicación (como `/login` o `/dashboard`) funcionarán correctamente incluso si recargas la página.
     -   **API:** Los endpoints de la API siguen estando disponibles directamente. Por ejemplo, para el login:
         -   **URL:** `http://localhost:8080/api/login.php`
