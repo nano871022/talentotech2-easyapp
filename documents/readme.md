@@ -1,5 +1,3 @@
-Claro, aquí tienes el contenido completo generado en formato **Markdown** listo para usar como tu archivo `README.md`.
-
 ```markdown
 # Easy English App (Taller 1)
 
