@@ -63,6 +63,7 @@ jobs:
             **/node_modules/**
             **/documents/**
             **/frontend/**
+            **/README.md
 
       # 3. Creación y Push del Tag de Versión (A5)
       # Este paso se ejecuta solo si el despliegue por FTP fue exitoso.
