@@ -1,10 +1,13 @@
-# Desactivar listado de directorios
-Options -Indexes
-
-# Proteger carpeta admin (si quieres forzar HTTPS y reescrituras)
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  # Forzar HTTPS (si host soporta)
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteEngine On
+
+    # No reescribir las peticiones a la API
+    RewriteCond %{REQUEST_URI} !^/api/
+
+    # Si el archivo o directorio solicitado no existe...
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # ...redirigir la petición al index.html de Angular.
+    RewriteRule . /static/index.html [L]
 </IfModule>
