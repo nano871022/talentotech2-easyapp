@@ -3,6 +3,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { authGuard } from './guards/auth.guard';
+
 import { LandingPageComponent } from './landing-page/landing-page';
 
 export const routes: Routes = [
