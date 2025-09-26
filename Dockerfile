@@ -11,14 +11,18 @@ RUN apt-get update && apt-get install -y \
 # Install Angular CLI globally
 RUN npm install -g @angular/cli
 
+# Enable Apache's mod_rewrite and allow .htaccess overrides
+RUN a2enmod rewrite && \
+    sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
 # Set the working directory in the container
 WORKDIR /var/www/html
 
 # Copy the entire project into the container
 COPY . /var/www/html/
 
-# Install frontend dependencies and build the Angular app, replicating the deploy.yaml process
-RUN npm install --prefix frontend && npm run build --prefix frontend -- --base-href /static/
+# Install frontend dependencies and build the Angular app, replicating the corrected deploy.yaml process
+RUN npm install --prefix frontend && npm run build --prefix frontend
 
 # Expose port 80 to the outside world
 EXPOSE 80
