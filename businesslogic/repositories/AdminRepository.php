@@ -1,14 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../model/Admin.php';
+require_once __DIR__ . '/../models/Admin.php';
 require_once __DIR__ . '/Database.php';
 
 /**
- * AdminDAO (Data Access Object)
+ * AdminRepository (Data Access Object)
  *
  * Proporciona los métodos para interactuar con la tabla `admins`.
  */
-class AdminDAO
+class AdminRepository
 {
     private PDO $db;
 
@@ -44,7 +44,7 @@ class AdminDAO
                 );
             }
         } catch (PDOException $e) {
-            error_log('AdminDAO Error - findByUsername: ' . $e->getMessage());
+            error_log('AdminRepository Error - findByUsername: ' . $e->getMessage());
             return null;
         }
 
