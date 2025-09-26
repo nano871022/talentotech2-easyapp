@@ -3,10 +3,16 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { authGuard } from './guards/auth.guard';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 export const routes: Routes = [
   {
     path: '',
+    component: LandingPageComponent,
+    title: 'Language Advisory Services'
+  },
+  {
+    path: 'register',
     component: RegisterComponent,
     title: 'Solicitud de Asesoría'
   },
