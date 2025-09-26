@@ -64,6 +64,28 @@ Para configurar el proyecto en un entorno de desarrollo local, sigue estos pasos
         ```
     -   Esto iniciará la aplicación en `http://localhost:4200`. Gracias al archivo `proxy.conf.json`, todas las peticiones a `/api` serán redirigidas a tu servidor PHP local, evitando problemas de CORS.
 
+### Despliegue Local con Docker (Alternativa)
+
+Como alternativa a la configuración manual, puedes usar el `Dockerfile` incluido para levantar un entorno de pruebas completo que simula la configuración de producción.
+
+1.  **Construir la Imagen de Docker:**
+    Desde la raíz del proyecto, ejecuta el siguiente comando. Esto creará una imagen llamada `easyapp`:
+    ```bash
+    docker build -t easyapp .
+    ```
+
+2.  **Ejecutar el Contenedor:**
+    Una vez construida la imagen, iníciala con el siguiente comando. Esto expondrá la aplicación en el puerto 8080 de tu máquina local:
+    ```bash
+    docker run -p 8080:80 easyapp
+    ```
+
+3.  **Probar la Aplicación:**
+    -   **Frontend:** Abre tu navegador y ve a `http://localhost:8080/`. Serás redirigido automáticamente a la aplicación de Angular. Gracias a la configuración del servidor, todas las rutas de la aplicación (como `/login` o `/dashboard`) funcionarán correctamente incluso si recargas la página.
+    -   **API:** Los endpoints de la API siguen estando disponibles directamente. Por ejemplo, para el login:
+        -   **URL:** `http://localhost:8080/api/login.php`
+        -   **Método:** `POST`
+
 ## 3. Guía de Despliegue en Producción (CI/CD)
 
 El proyecto está configurado con un flujo de **Integración y Despliegue Continuo (CI/CD)** a través de **GitHub Actions**, definido en `.github/workflows/deploy.yaml`.

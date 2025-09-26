@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /static/browser/
+
+# If an existing asset or directory is requested, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# If the requested path does not exist, fall back to index.html
+RewriteRule ^ index.html [L]
