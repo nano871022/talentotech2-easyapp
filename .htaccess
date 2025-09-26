@@ -1,13 +1,25 @@
+# --- Reglas de Reescritura para Servir la Aplicación Angular desde /static ---
+
 <IfModule mod_rewrite.c>
-    RewriteEngine On
+  RewriteEngine On
 
-    # No reescribir las peticiones a la API
-    RewriteCond %{REQUEST_URI} !^/api/
+  # 1. Redirigir la raíz del dominio al index.html de Angular en /static/
+  # Si alguien accede a "easyapp.com/", se le servirá el archivo de la aplicación.
+  RewriteRule ^$ /static/index.html [L]
 
-    # Si el archivo o directorio solicitado no existe...
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+  # 2. Servir los assets de la aplicación (JS, CSS, imágenes) desde /static/
+  # Si una petición es para un archivo que existe dentro de /static/...
+  # (ej. /static/main.js), se sirve directamente.
+  RewriteCond %{REQUEST_URI} ^/static/
+  RewriteRule ^(.*)$ $1 [L]
 
-    # ...redirigir la petición al index.html de Angular.
-    RewriteRule . /static/index.html [L]
+  # 3. Gestionar el enrutamiento de la Single-Page Application (SPA)
+  # Si la petición no es para un archivo o directorio real...
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # ...y no es una llamada a la API...
+  RewriteCond %{REQUEST_URI} !^/api/
+  # ...entonces, redirigir la petición al index.html de Angular.
+  # Esto permite que Angular maneje las rutas internas (ej. /dashboard, /profile).
+  RewriteRule ^(.*)$ /static/index.html [L]
 </IfModule>
