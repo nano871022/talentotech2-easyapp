@@ -13,7 +13,9 @@ jobs:
     name: FTP Deploy
     runs-on: ubuntu-latest
     environment: PROD
-    
+    permissions:
+      contents: write 
+
     steps:
       # 1. Checkout del Repositorio
       # Este paso descarga el código de tu repositorio a la máquina virtual de Actions.
