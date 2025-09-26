@@ -1,14 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../model/Contacto.php';
+require_once __DIR__ . '/../models/Contacto.php';
 require_once __DIR__ . '/Database.php';
 
 /**
- * ContactoDAO (Data Access Object)
+ * ContactoRepository (Data Access Object)
  *
  * Proporciona los métodos para interactuar con la tabla `contactos`.
  */
-class ContactoDAO
+class ContactoRepository
 {
     private PDO $db;
 
@@ -43,7 +43,7 @@ class ContactoDAO
             return $stmt->execute();
         } catch (PDOException $e) {
             // Manejar error, por ejemplo, si el correo ya existe (llave única)
-            error_log('ContactoDAO Error - create: ' . $e->getMessage());
+            error_log('ContactoRepository Error - create: ' . $e->getMessage());
             return false;
         }
     }
@@ -73,7 +73,7 @@ class ContactoDAO
                 );
             }
         } catch (PDOException $e) {
-            error_log('ContactoDAO Error - findAll: ' . $e->getMessage());
+            error_log('ContactoRepository Error - findAll: ' . $e->getMessage());
         }
         return $contactos;
     }

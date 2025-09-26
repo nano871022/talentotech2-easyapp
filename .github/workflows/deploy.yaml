@@ -22,7 +22,18 @@ jobs:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. Generate .env file with Secrets
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Usar una versión LTS de Node.js
+
+      - name: 3. Install Angular Dependencies
+        run: npm install --prefix frontend
+
+      - name: 4. Build Angular Application
+        run: npm run build --prefix frontend
+
+      - name: 5. Generate .env file with Secrets
         run: |
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
@@ -31,7 +42,7 @@ jobs:
 
       # 2. Despliegue por FTP
       # Utiliza la acción SamKirkland/FTP-Deploy-Action para transferir los archivos.
-      - name: 3. FTP Deploy Action
+      - name: 6. FTP Deploy Action
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           # --- Configuración de Conexión (A2) ---
@@ -51,10 +62,11 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/documents/**
+            **/frontend/**
 
       # 3. Creación y Push del Tag de Versión (A5)
       # Este paso se ejecuta solo si el despliegue por FTP fue exitoso.
-      - name: 4. Create and Push Version Tag
+      - name: 7. Create and Push Version Tag
         run: |
           # Configura Git con la identidad del bot de GitHub Actions.
           git config --global user.name 'github-actions[bot]'
