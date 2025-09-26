@@ -196,3 +196,12 @@ La API REST es el núcleo del back-end. Todos los *endpoints* se encuentran bajo
     -   **PHP:** >= 8.0
     -   **Node.js:** >= 20.x
     -   **Angular:** ^17.x (o la versión especificada en `frontend/package.json`)
+
+## 6. Rutas Principales de la Aplicación
+
+A continuación se listan las rutas más importantes de la aplicación Angular:
+
+-   `/`: **Página de Inicio (Landing Page)**. Es la página principal que presenta los servicios de asesoría de idiomas. También actúa como página de error 404, mostrando este contenido si una ruta no es encontrada.
+-   `/register`: **Formulario de Registro**. Página donde los usuarios pueden enviar una solicitud de asesoría.
+-   `/login`: **Inicio de Sesión de Administrador**. Formulario para que los administradores accedan al panel de control.
+-   `/dashboard`: **Panel de Administración**. Vista protegida donde los administradores pueden ver y gestionar las solicitudes de asesoría.
