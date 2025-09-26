@@ -52,6 +52,8 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/documents/**
+            **README.md**
+            **/.github**
 
       # 3. Creación y Push del Tag de Versión (A5)
       # Este paso se ejecuta solo si el despliegue por FTP fue exitoso.
