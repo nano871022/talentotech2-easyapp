@@ -1,0 +1,29 @@
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Formulario de Solicitud de Asesoría</h3>
+            </div>
+            <div class="card-body">
+                <!-- El mensaje de error se insertará aquí dinámicamente -->
+                {{error_message_html}}
+                <p>Por favor, completa tus datos y uno de nuestros expertos se pondrá en contacto contigo.</p>
+                <form action="register.php" method="POST">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="correo" name="correo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono (Opcional)</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Enviar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
