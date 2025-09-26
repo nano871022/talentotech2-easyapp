@@ -43,6 +43,7 @@ jobs:
           # --- Regla de Despliegue (A3) ---
           # Define el directorio raíz en el servidor donde se subirán los archivos.
           server-dir: ${{ secrets.FTP_PATH }}
+          purge: true 
 
           # --- Regla de Exclusión (A4) ---
           # Ignora explícitamente la carpeta './documents' y otros archivos innecesarios.
