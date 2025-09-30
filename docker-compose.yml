@@ -1,54 +1,78 @@
 version: '3.8'
 
 services:
-  # Servicio de la aplicación PHP con Apache
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: php-apache-app
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-    environment:
-      - DB_HOST=db
-      - DB_NAME=easyapp_db
-      - DB_USER=user
-      - DB_PASS=password
-    depends_on:
-      - db
-    networks:
-      - app-network
-
-  # Servicio de la Base de Datos MySQL
+  # 1. Database Service (MySQL)
   db:
     image: mysql:8.0
     container_name: mysql-db
     restart: always
     environment:
-      MYSQL_DATABASE: easyapp_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
     networks:
       - app-network
 
-  # Servicio de phpMyAdmin para gestionar la base de datos
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-ui
-    restart: always
-    ports:
-      - "8081:80"
+  # 2. Backend PHP-FPM Application Service
+  app-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-backend-php
+    volumes:
+      - ./backend:/var/www
     environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: root_password
+      # Pass database credentials from the .env file
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
     depends_on:
       - db
+    networks:
+      - app-network
+
+  # 3. Backend NGINX Reverse Proxy
+  nginx-backend:
+    image: nginx:alpine
+    container_name: app-backend-nginx
+    restart: always
+    ports:
+      - "${BACKEND_PORT}:80"
+    volumes:
+      - ./backend:/var/www
+      - ./docker/backend.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app-backend
+    networks:
+      - app-network
+
+  # 4. Frontend Angular SPA Service (served by NGINX)
+  app-frontend:
+    image: nginx:alpine
+    container_name: app-frontend-nginx
+    restart: always
+    ports:
+      - "${FRONTEND_PORT}:80"
+    volumes:
+      # This assumes the Angular app has been built into frontend/dist
+      - ./frontend/dist/angular-app/browser:/usr/share/nginx/html
+      - ./docker/frontend.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+
+  # 5. Static Assets Server (simulating a CDN)
+  static-server:
+    image: nginx:alpine
+    container_name: static-assets-server
+    restart: always
+    ports:
+      - "${STATIC_ASSETS_PORT}:80"
+    volumes:
+      - ./static-assets:/usr/share/nginx/html
     networks:
       - app-network
 

@@ -1,0 +1,67 @@
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Panel de Administración</h1>
+            <p class="lead">Solicitudes de Asesoría Recibidas</p>
+        </div>
+        <div>
+            <span class="text-muted me-3">Hola, {{ adminName }}</span>
+            <button class="btn btn-danger" (click)="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Error Message -->
+            <div *ngIf="error" class="alert alert-danger">
+                {{ error }}
+            </div>
+
+            <div *ngIf="!error" class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Fecha de Solicitud</th>
+                        </tr>
+                    </thead>
+                    <!-- Use async pipe and ng-container for a clean structure -->
+                    <ng-container *ngIf="(requests$ | async) as requests; else loading">
+                        <tbody *ngIf="requests.length > 0; else noRequests">
+                            <tr *ngFor="let request of requests">
+                                <th>{{ request.id }}</th>
+                                <td>{{ request.nombre }}</td>
+                                <td>{{ request.correo }}</td>
+                                <td>{{ request.telefono || 'No provisto' }}</td>
+                                <td><span class="badge bg-primary">{{ request.estado }}</span></td>
+                                <td>{{ request.fecha_solicitud | date:'yyyy-MM-dd HH:mm' }}</td>
+                            </tr>
+                        </tbody>
+                    </ng-container>
+
+                    <!-- Template for when there are no requests -->
+                    <ng-template #noRequests>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center p-4">No hay solicitudes de asesoría por el momento.</td>
+                            </tr>
+                        </tbody>
+                    </ng-template>
+
+                    <!-- Template for while data is loading -->
+                    <ng-template #loading>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center p-4">Cargando solicitudes...</td>
+                            </tr>
+                        </tbody>
+                    </ng-template>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
