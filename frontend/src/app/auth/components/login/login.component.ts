@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         console.error('Login failed:', error);
-        this.loginError = 'Usuario o contraseña incorrectos.';
+        this.loginError = 'Invalid credentials';
         this.isSubmitting = false;
       }
     });

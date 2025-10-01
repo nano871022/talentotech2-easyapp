@@ -1,32 +1,36 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h3 class="card-title mb-0">Acceso de Administrador</h3>
-                </div>
-                <div class="card-body">
-                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                        <!-- Login Error Message -->
-                        <div *ngIf="loginError" class="alert alert-danger">
-                            {{ loginError }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="usuario" class="form-label">Usuario</label>
-                            <input type="text" class="form-control" id="usuario" formControlName="usuario" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" formControlName="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid || isSubmitting">
-                            <span *ngIf="!isSubmitting">Ingresar al Panel</span>
-                            <span *ngIf="isSubmitting">Ingresando...</span>
-                        </button>
-                    </form>
+<div class="bg-white dark:bg-zinc-800 shadow-lg rounded-lg w-full max-w-sm">
+    <div class="p-6">
+        <div class="flex justify-between items-center pb-4 border-b border-zinc-200 dark:border-zinc-700">
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">LOGIN</h1>
+        </div>
+        <form class="mt-6 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div>
+                <!-- The label is changed to 'Usuario' to match the form control name -->
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300" for="usuario">Usuario</label>
+                <div class="mt-1">
+                    <!-- The formControlName is set to 'usuario' -->
+                    <input class="block w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="usuario" formControlName="usuario" placeholder="nombredeusuario" type="text"/>
                 </div>
             </div>
-        </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300" for="password">Password</label>
+                <div class="mt-1">
+                    <input class="block w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="password" formControlName="password" placeholder="********" type="password"/>
+                </div>
+            </div>
+
+            <!-- The error message is now displayed conditionally -->
+            <div *ngIf="loginError" class="p-4 rounded-md bg-error-light dark:bg-error-dark">
+                <p class="text-sm text-error-text-light dark:text-error-text-dark">{{ loginError }}</p>
+            </div>
+
+            <div class="flex justify-end">
+                <!-- The button is disabled based on form state and shows a submitting indicator -->
+                <button class="inline-flex justify-center py-2 px-4 border border-primary text-sm font-medium rounded-md text-primary bg-white dark:bg-zinc-800 hover:bg-primary/10 dark:hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="submit" [disabled]="loginForm.invalid || isSubmitting">
+                    <span *ngIf="!isSubmitting">Verificar</span>
+                    <span *ngIf="isSubmitting">Verificando...</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
