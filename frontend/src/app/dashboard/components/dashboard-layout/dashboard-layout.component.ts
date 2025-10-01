@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -5,8 +6,10 @@ import { RequestService, AdvisoryRequest } from '../../../core/services/request.
 
 @Component({
   selector: 'app-dashboard-layout',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './dashboard-layout.component.html',
-  styleUrls: ['./dashboard-layout.component.scss']
+  styleUrls: ['./dashboard-layout.component.scss'],
 })
 export class DashboardLayoutComponent implements OnInit {
   // Use an observable to handle the data stream

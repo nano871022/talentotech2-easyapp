@@ -7,15 +7,14 @@ import { AuthLayoutComponent } from './components/auth-layout/auth-layout.compon
 import { LoginComponent } from './components/login/login.component'; // Import LoginComponent
 
 @NgModule({
-  declarations: [
-    AuthLayoutComponent,
-    LoginComponent // Declare LoginComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     AuthRoutingModule,
     FormsModule, // Add forms modules here
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AuthLayoutComponent,
+    LoginComponent // Declare LoginComponent
   ]
 })
 export class AuthModule { }

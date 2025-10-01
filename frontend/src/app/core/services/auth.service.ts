@@ -17,7 +17,7 @@ export class AuthService {
    * @returns An Observable with the response from the API.
    */
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this->apiUrl}/login`, credentials);
+    return this.http.post(`${this.apiUrl}/login`, credentials);
   }
 
   // In a real application, we would add methods for logout, token management, etc.

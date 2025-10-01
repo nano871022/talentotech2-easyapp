@@ -8,15 +8,14 @@ import { RegisterPageComponent } from './components/register-page/register-page.
 
 
 @NgModule({
-  declarations: [
-    LandingPageComponent,
-    RegisterPageComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     HomeRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LandingPageComponent,
+    RegisterPageComponent
   ]
 })
 export class HomeModule { }
