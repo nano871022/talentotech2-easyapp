@@ -6,6 +6,10 @@ const routes: Routes = [
   {
     path: '',
     component: DashboardLayoutComponent
+  },
+  {
+    path: 'correct-data',
+    loadComponent: () => import('./components/data-correction/data-correction.component').then(m => m.DataCorrectionComponent)
   }
 ];
 
