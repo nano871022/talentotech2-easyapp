@@ -14,7 +14,7 @@ import { LoginComponent } from './components/login/login.component'; // Import L
     FormsModule, // Add forms modules here
     ReactiveFormsModule,
     AuthLayoutComponent,
-    LoginComponent // Declare LoginComponent
+    LoginComponent
   ]
 })
 export class AuthModule { }
