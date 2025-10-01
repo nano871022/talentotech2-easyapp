@@ -10,29 +10,41 @@ module.exports = function (config) {
     frameworks: ['jasmine', '@angular/build'],
     plugins: [
       require('karma-jasmine'),
-      require('karma-chrome-launcher'), // This launcher will now use the CHROME_BIN variable
+      require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
-      require('@angular/build/plugins/karma')
     ],
     client: {
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      jasmine: {
+        // you can add configuration options for Jasmine here
+        // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
+        // for example, to disable the random execution order
+        // random: false
+      },
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser
+    },
+    jasmineHtmlReporter: {
+      suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/angular-app'),
       subdir: '.',
-      reporters: [
-        { type: 'html' },
-        { type: 'text-summary' }
-      ]
+      reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: false, // Set to false for single runs
-    browsers: ['ChromeHeadless'], // Use a custom launcher definition
-    singleRun: true, // Set to true for CI environments
-    restartOnFileChange: false
+    autoWatch: true,
+    browsers: ['ChromeHeadlessCI'],
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu'],
+      },
+    },
+    singleRun: false,
+    restartOnFileChange: true,
+
   });
 };
