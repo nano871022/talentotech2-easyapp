@@ -2,6 +2,13 @@
 
 This directory contains the Angular Single Page Application (SPA) for the Language Advisory Platform. It is built with a modern, modular architecture and uses Bootstrap and Angular Material for styling.
 
+# Pages
+
+- **`/`**: Contains landing page
+- **`/register/`**: Contains Register form to request to advice
+- **`/auth/`**: contain login page
+- **`/dashboard/`**: contain dashboard page it just work with login on
+
 ## Architecture
 
 The application is structured into feature modules to support lazy loading and a clean separation of concerns.
