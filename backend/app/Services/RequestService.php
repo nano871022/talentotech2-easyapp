@@ -44,4 +44,27 @@ class RequestService
     {
         return $this->requestRepository->findAll();
     }
+
+    /**
+     * Fetches a single advisory request by its ID.
+     *
+     * @param int $id The ID of the request.
+     * @return Request|null The Request object or null if not found.
+     */
+    public function fetchRequestById(int $id): ?Request
+    {
+        return $this->requestRepository->findById($id);
+    }
+
+    /**
+     * Updates the contact status of a request.
+     *
+     * @param int $id The ID of the request.
+     * @param bool $contactado The new contact status.
+     * @return bool True on success, false on failure.
+     */
+    public function updateRequestStatus(int $id, bool $contactado): bool
+    {
+        return $this->requestRepository->updateStatus($id, $contactado);
+    }
 }

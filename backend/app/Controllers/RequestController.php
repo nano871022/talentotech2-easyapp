@@ -93,4 +93,95 @@ class RequestController
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching requests.']);
         }
     }
+
+    /**
+     * Handles fetching a single request by its ID.
+     * The ID is expected to be the last part of the URI.
+     */
+    public function getRequest(): void
+    {
+        $id = $this->getIdFromPath();
+        if (!$id) return;
+
+        try {
+            $request = $this->getService()->fetchRequestById($id);
+
+            if ($request) {
+                http_response_code(200);
+                echo json_encode([
+                    'id' => $request->getId(),
+                    'nombre' => $request->getNombre(),
+                    'correo' => $request->getCorreo(),
+                    'telefono' => $request->getTelefono(),
+                    'idiomas' => $request->getIdiomas(), // Assuming this method exists
+                    'estado_contacto' => (bool)$request->getEstado(),
+                    'fecha_creacion' => (new \DateTime($request->getCreatedAt()))->format('Y-m-d H:i:s'),
+                ]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Not Found', 'message' => 'Request not found.']);
+            }
+        } catch (\Exception $e) {
+            error_log('Fetch Request Error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching the request.']);
+        }
+    }
+
+    /**
+     * Handles updating the contact status of a request.
+     * The ID is expected to be in the URI.
+     */
+    public function updateStatus(): void
+    {
+        $id = $this->getIdFromPath(true); // Expects '/status' at the end
+        if (!$id) return;
+
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !isset($data['contactado'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid JSON or missing "contactado" field.']);
+            return;
+        }
+
+        try {
+            $success = $this->getService()->updateRequestStatus($id, (bool)$data['contactado']);
+            if ($success) {
+                http_response_code(200);
+                echo json_encode(['status' => 'success', 'message' => 'Contact status updated successfully.']);
+            } else {
+                http_response_code(404); // Or 500 if the failure is not due to not found
+                echo json_encode(['error' => 'Update Failed', 'message' => 'Could not update contact status.']);
+            }
+        } catch (\Exception $e) {
+            error_log('Update Status Error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal Server Error', 'message' => 'An unexpected error occurred.']);
+        }
+    }
+
+    /**
+     * Extracts the numeric ID from the request URI.
+     * @param bool $trimStatusPath If true, trims '/status' from the end of the path.
+     * @return int|null
+     */
+    private function getIdFromPath(bool $trimStatusPath = false): ?int
+    {
+        $path = $_SERVER['PATH_INFO'] ?? '';
+        if ($trimStatusPath) {
+            $path = preg_replace('/\/status$/', '', $path);
+        }
+
+        $segments = explode('/', $path);
+        $id = end($segments);
+
+        if (!is_numeric($id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid or missing request ID.']);
+            return null;
+        }
+        return (int)$id;
+    }
 }

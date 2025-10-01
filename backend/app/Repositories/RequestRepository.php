@@ -67,7 +67,7 @@ class RequestRepository
             return [];
         }
 
-        $sql = "SELECT id, nombre, correo, telefono, estado, created_at FROM contactos ORDER BY created_at DESC";
+        $sql = "SELECT id, nombre, correo, telefono, estado, created_at, idiomas FROM contactos ORDER BY created_at DESC";
         $requests = [];
 
         try {
@@ -79,7 +79,8 @@ class RequestRepository
                     $row['telefono'],
                     $row['id'],
                     $row['estado'],
-                    $row['created_at']
+                    $row['created_at'],
+                    $row['idiomas']
                 );
             }
         } catch (PDOException $e) {
@@ -115,12 +116,43 @@ class RequestRepository
                     $row['telefono'],
                     $row['id'],
                     $row['estado'],
-                    $row['created_at']
+                    $row['created_at'],
+                    $row['idiomas']
                 );
             }
         } catch (PDOException $e) {
             error_log('RequestRepository Error - findById: ' . $e->getMessage());
         }
         return null;
+    }
+
+    /**
+     * Updates the contact status of a request.
+     *
+     * @param int $id The ID of the request to update.
+     * @param bool $contactado The new contact status.
+     * @return bool True on success, false on failure.
+     */
+    public function updateStatus(int $id, bool $contactado): bool
+    {
+        if ($this->db === null) {
+            return false;
+        }
+
+        // The 'estado' column seems to be the one for contact status
+        $sql = "UPDATE contactos SET estado = :estado, fecha_contacto = :fecha_contacto WHERE id = :id";
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':estado', $contactado, PDO::PARAM_BOOL);
+            // Update fecha_contacto to the current time if being marked as contacted
+            $stmt->bindValue(':fecha_contacto', $contactado ? date('Y-m-d H:i:s') : null, PDO::PARAM_STR);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('RequestRepository Error - updateStatus: ' . $e->getMessage());
+            return false;
+        }
     }
 }

@@ -14,7 +14,8 @@ class Request
         private ?string $telefono,
         private ?int $id = null,
         private string $estado = 'nuevo',
-        private ?string $created_at = null
+        private ?string $created_at = null,
+        private ?string $idiomas = null
     ) {}
 
     // --- Getters ---
@@ -46,5 +47,19 @@ class Request
     public function getCreatedAt(): ?string
     {
         return $this->created_at;
+    }
+
+    /**
+     * Returns the languages as an array.
+     * Assumes languages are stored as a comma-separated string.
+     * @return array
+     */
+    public function getIdiomas(): array
+    {
+        if (empty($this->idiomas)) {
+            return [];
+        }
+        // Trim whitespace from each language and remove empty entries
+        return array_filter(array_map('trim', explode(',', $this->idiomas)));
     }
 }
