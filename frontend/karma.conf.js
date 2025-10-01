@@ -9,10 +9,7 @@ module.exports = function (config) {
     basePath: '',
     frameworks: ['jasmine', '@angular/build'],
     plugins: [
-      require('karma-jasmine'),
-      require('karma-chrome-launcher'),
-      require('karma-jasmine-html-reporter'),
-      require('karma-coverage'),
+      // All plugins are loaded automatically by the @angular/build framework
     ],
     client: {
       jasmine: {
