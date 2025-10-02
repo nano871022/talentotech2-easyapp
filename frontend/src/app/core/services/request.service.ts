@@ -91,4 +91,14 @@ export class RequestService {
     const body = { contactado };
     return this.http.put(url, body);
   }
+
+   /*
+   * Posts a data correction to the backend.
+   * @param data The data correction payload.
+   * @returns An Observable of the HTTP response.
+   */
+  correctData(data: { requestId: number; campoACorregir: string; valorAnterior: string; valorNuevo: string; }): Observable<any> {
+    const url = `${this.apiUrl}/correct-data`;
+    return this.http.post(url, data);
+  }
 }

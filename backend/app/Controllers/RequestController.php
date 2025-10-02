@@ -184,4 +184,38 @@ class RequestController
         }
         return (int)$id;
     }
+
+    /**
+     * Handles the API request for correcting a data field.
+     */
+    public function correctData(): void
+    {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+
+        // Validate input data
+        if (json_last_error() !== JSON_ERROR_NONE || !isset($data['requestId'], $data['campoACorregir'], $data['valorAnterior'], $data['valorNuevo'])) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid JSON or missing required fields.']);
+            $result = $this->getService()->correctData(
+                (int)$data['requestId'],
+                (string)$data['campoACorregir'],
+                (string)$data['valorAnterior'],
+                (string)$data['valorNuevo']
+            );
+
+            if ($result['success']) {
+                http_response_code(200); // OK
+                echo json_encode(['status' => 'success', 'message' => $result['message']]);
+            } else {
+                // Use the status code provided by the service
+                http_response_code($result['code'] ?? 400);
+                echo json_encode(['error' => 'Operation Failed', 'message' => $result['message']]);
+            }
+        } catch (\Exception $e) {
+            error_log('Correct Data Error: ' . $e->getMessage());
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'Internal Server Error', 'message' => 'An unexpected error occurred.']);
+        }
+    }
 }

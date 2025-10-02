@@ -2,16 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\DataCorrection;
 use App\Models\Request;
+use App\Repositories\DataCorrectionRepository;
 use App\Repositories\RequestRepository;
 
 class RequestService
 {
     private RequestRepository $requestRepository;
+    private DataCorrectionRepository $dataCorrectionRepository;
 
     public function __construct()
     {
         $this->requestRepository = new RequestRepository();
+        $this->dataCorrectionRepository = new DataCorrectionRepository();
     }
 
     /**
@@ -66,5 +70,67 @@ class RequestService
     public function updateRequestStatus(int $id, bool $contactado): bool
     {
         return $this->requestRepository->updateStatus($id, $contactado);
+    }
+
+     /**
+     * Handles the logic for correcting a data field of a request.
+     *
+     * @param int    $requestId      The ID of the request to correct.
+     * @param string $fieldToCorrect The name of the field to correct.
+     * @param string $previousValue  The expected previous value for validation.
+     * @param string $newValue       The new value to set.
+     * @return array An associative array with 'success' and 'message' keys.
+     */
+    public function correctData(int $requestId, string $fieldToCorrect, string $previousValue, string $newValue): array
+    {
+        // 1. Fetch the original request
+        $request = $this->requestRepository->findById($requestId);
+        if (!$request) {
+            return ['success' => false, 'message' => 'Request not found.', 'code' => 404];
+        }
+
+        // Map frontend field names to backend model getter methods
+        $fieldMap = [
+            'correo' => 'getCorreo',
+            'telefono' => 'getTelefono',
+            'nombre' => 'getNombre'
+        ];
+
+        $getter = $fieldMap[$fieldToCorrect] ?? null;
+
+        if (!$getter || !method_exists($request, $getter)) {
+            return ['success' => false, 'message' => "Field '$fieldToCorrect' is not correctable.", 'code' => 400];
+        }
+        $currentValue = $request->{$getter}();
+
+        if ($currentValue !== $previousValue) {
+            return ['success' => false, 'message' => 'The provided previous value does not match the current value.', 'code' => 409];
+        }
+
+        // 3. Create an audit record
+        $dataCorrection = new DataCorrection(
+            $requestId,
+            $fieldToCorrect,
+            $previousValue,
+            $newValue
+        );
+        $auditSaved = $this->dataCorrectionRepository->save($dataCorrection);
+
+        if (!$auditSaved) {
+            // Log this error, as it's a critical failure
+            error_log("Failed to save audit record for request ID: $requestId");
+            return ['success' => false, 'message' => 'Failed to save audit trail.', 'code' => 500];
+        }
+
+        // 4. Update the request record
+        $updateSuccess = $this->requestRepository->updateField($requestId, $fieldToCorrect, $newValue);
+
+        if ($updateSuccess) {
+            return ['success' => true, 'message' => 'Data corrected successfully.'];
+        } else {
+            // This is a critical error, might need a transaction rollback in a real app
+            error_log("Failed to update field '$fieldToCorrect' for request ID: $requestId after saving audit record.");
+            return ['success' => false, 'message' => 'Failed to update the request record.', 'code' => 500];
+        }
     }
 }

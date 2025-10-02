@@ -152,6 +152,43 @@ class RequestRepository
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('RequestRepository Error - updateStatus: ' . $e->getMessage());
+           return false;
+        }
+    }
+
+     /**
+     * Updates a specific field for a given request.
+     *
+     * @param int    $requestId The ID of the request to update.
+     * @param string $field     The name of the field to update (e.g., 'nombre', 'correo', 'telefono').
+     * @param string $newValue  The new value for the field.
+     * @return bool True on success, false on failure.
+     */
+    public function updateField(int $requestId, string $field, string $newValue): bool
+    {
+        if ($this->db === null) {
+            error_log('RequestRepository Error: Database connection is not available.');
+            return false;
+        }
+
+        // Whitelist of updatable fields to prevent SQL injection
+        $allowedFields = ['nombre', 'correo', 'telefono'];
+        if (!in_array($field, $allowedFields)) {
+            error_log("RequestRepository Error - updateField: Attempt to update a non-whitelisted field: $field");
+            return false;
+        }
+
+        // The column name is safe now because it's from a whitelist
+        $sql = "UPDATE contactos SET $field = :newValue WHERE id = :id";
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':newValue', $newValue, PDO::PARAM_STR);
+            $stmt->bindValue(':id', $requestId, PDO::PARAM_INT);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('RequestRepository Error - updateField: ' . $e->getMessage());
             return false;
         }
     }
