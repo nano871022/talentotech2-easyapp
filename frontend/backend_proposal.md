@@ -1,103 +1,74 @@
-# Propuesta de Modificación para el Backend PHP: Endpoint de Filtros
+# Backend Proposal for Data Correction
 
-## 1. Resumen
+This document outlines the requirements for the new backend endpoint that handles data correction for a request record.
 
-Para dar soporte a la nueva funcionalidad de filtrado del dashboard de administración, el endpoint de backend `GET /v1/requests` debe ser modificado para aceptar y procesar varios parámetros de consulta (*query parameters*).
+## Endpoint
 
-Esta propuesta detalla los parámetros esperados y sugiere una estrategia de implementación en PHP para filtrar las solicitudes de asesoría desde la base de datos.
+*   **URL:** `/v1/requests/correct-data`
+*   **Method:** `POST`
 
-## 2. Endpoint
+## Request Body (JSON)
 
-**Método:** `GET`
-**URL:** `/v1/requests`
+The endpoint should expect a JSON payload with the following structure:
 
-## 3. Parámetros de Consulta (Query Parameters)
-
-El frontend enviará los siguientes parámetros opcionales en la URL. El backend debe estar preparado para manejar cualquier combinación de ellos.
-
-| Parámetro               | Tipo de Dato | Formato de URL (Ejemplo)                      | Descripción                                                                 |
-| ----------------------- | ------------ | --------------------------------------------- | --------------------------------------------------------------------------- |
-| `nombres`               | `string`     | `?nombres=John%20Doe`                         | Filtrar por coincidencia parcial (LIKE) en el nombre del solicitante.       |
-| `correo`                | `string`     | `?correo=test@example.com`                    | Filtrar por coincidencia parcial (LIKE) en el correo electrónico.           |
-| `idiomas[]`             | `array`      | `?idiomas[]=Ingles&idiomas[]=Aleman`          | Filtrar solicitudes que incluyan **todos** los idiomas especificados.       |
-| `contactado`            | `boolean`    | `?contactado=true`                            | Si es `true`, devolver solo las contactadas. Si es `false` o no se envía, devolver todas. |
-| `fecha_contacto_inicio` | `string`     | `?fecha_contacto_inicio=2023-01-01`           | Fecha de inicio del rango para `fecha_contacto`. Formato `YYYY-MM-DD`.      |
-| `fecha_contacto_fin`    | `string`     | `?fecha_contacto_fin=2023-01-31`              | Fecha de fin del rango para `fecha_contacto`. Formato `YYYY-MM-DD`.         |
-| `fecha_creacion_inicio` | `string`     | `?fecha_creacion_inicio=2022-01-01`           | Fecha de inicio del rango para `fecha_creacion`. Formato `YYYY-MM-DD`.      |
-| `fecha_creacion_fin`    | `string`     | `?fecha_creacion_fin=2022-12-31`              | Fecha de fin del rango para `fecha_creacion`. Formato `YYYY-MM-DD`.         |
-
-### Ejemplo de URL Completa
-
-Una consulta combinando varios filtros se vería así:
-```
-/v1/requests?nombres=Ana&idiomas[]=Ingles&contactado=true&fecha_creacion_inicio=2023-01-01
+```json
+{
+  "requestId": 123,
+  "campoACorregir": "email",
+  "valorAnterior": "old_value",
+  "valorNuevo": "new_value"
+}
 ```
 
-## 4. Estrategia de Implementación en PHP (Sugerencia)
+*   `requestId`: The ID of the main request record to be updated.
+*   `campoACorregir`: The name of the field to be corrected (e.g., 'email', 'telefono', 'nombre').
+*   `valorAnterior`: The previous value of the field. This should be verified against the current value in the database before updating.
+*   `valorNuevo`: The new value to be set for the field.
 
-Se recomienda construir la consulta SQL dinámicamente basándose en los parámetros recibidos en el array `$_GET`.
+## Backend Logic
 
-```php
-<?php
-// Asumiendo un controlador o script que maneja la ruta /v1/requests
+The PHP backend should perform the following steps:
 
-// 1. Iniciar la consulta base
-$sql = "SELECT * FROM advisory_requests WHERE 1=1";
-$params = [];
+1.  **Validate Input:**
+    *   Receive the POST request and decode the JSON body.
+    *   Validate that all required fields (`requestId`, `campoACorregir`, `valorAnterior`, `valorNuevo`) are present and have the correct data types.
+    *   Ensure `valorNuevo` is not empty.
 
-// 2. Añadir condiciones dinámicamente
+2.  **Verify `valorAnterior`:**
+    *   Query the `requests` table to fetch the current value of the `campoACorregir` for the given `requestId`.
+    *   Compare the fetched value with the `valorAnterior` from the request payload. If they do not match, return an error response to prevent race conditions or stale data updates.
 
-// Filtro por nombres (búsqueda parcial)
-if (!empty($_GET['nombres'])) {
-    $sql .= " AND nombres LIKE ?";
-    $params[] = '%' . $_GET['nombres'] . '%';
-}
+3.  **Create Audit Record:**
+    *   Insert a new record into a `data_corrections` audit table. This table should store the history of all data corrections.
+    *   The `data_corrections` table should have the following columns (at a minimum):
+        *   `id` (Primary Key)
+        *   `request_id` (Foreign Key to `requests.id`)
+        *   `field_corrected`
+        *   `old_value`
+        *   `new_value`
+        *   `corrected_at` (Timestamp)
+        *   `corrected_by` (User ID, if applicable)
 
-// Filtro por correo (búsqueda parcial)
-if (!empty($_GET['correo'])) {
-    $sql .= " AND correo LIKE ?";
-    $params[] = '%' . $_GET['correo'] . '%';
-}
+4.  **Update Request Record:**
+    *   Update the `requests` table, setting the `campoACorregir` to the `valorNuevo` for the given `requestId`.
 
-// Filtro por idiomas (asumiendo que 'idiomas' es una columna tipo JSON o texto separado por comas)
-if (!empty($_GET['idiomas']) && is_array($_GET['idiomas'])) {
-    foreach ($_GET['idiomas'] as $idioma) {
-        // Para JSON:
-        $sql .= " AND JSON_CONTAINS(idiomas, ?)";
-        $params[] = json_encode($idioma);
-        // Para texto (ej: "Ingles,Aleman"):
-        // $sql .= " AND FIND_IN_SET(?, idiomas)";
-        // $params[] = $idioma;
-    }
-}
+5.  **Return Response:**
+    *   If all steps are successful, return a `200 OK` response with a success message.
+    *   If any step fails, return an appropriate error response (e.g., `400 Bad Request` for invalid input, `409 Conflict` for mismatched `valorAnterior`, `500 Internal Server Error` for database errors).
 
-// Filtro por estado "contactado"
-if (isset($_GET['contactado']) && $_GET['contactado'] === 'true') {
-    $sql .= " AND contactado = ?";
-    $params[] = 1; // o true, dependiendo del tipo de columna
-}
+## Database Schema (Proposed)
 
-// Filtros de rango de fechas
-if (!empty($_GET['fecha_creacion_inicio'])) {
-    $sql .= " AND fecha_creacion >= ?";
-    $params[] = $_GET['fecha_creacion_inicio'];
-}
-if (!empty($_GET['fecha_creacion_fin'])) {
-    $sql .= " AND fecha_creacion <= ?";
-    $params[] = $_GET['fecha_creacion_fin'];
-}
-// Repetir lógica similar para fecha_contacto...
+### `data_corrections` table
 
-// 3. Preparar y ejecutar la consulta (usando PDO como ejemplo)
-// $stmt = $pdo->prepare($sql);
-// $stmt->execute($params);
-// $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// 4. Devolver resultados como JSON
-// header('Content-Type: application/json');
-// echo json_encode($results);
-
-?>
+```sql
+CREATE TABLE data_corrections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    field_corrected VARCHAR(255) NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    corrected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- corrected_by INT, -- Optional: If you have user authentication
+    FOREIGN KEY (request_id) REFERENCES requests(id)
+);
 ```
-
-Esta estructura permite añadir filtros de forma segura y mantenible, utilizando sentencias preparadas para prevenir inyecciones SQL. El equipo de backend deberá adaptar la lógica de consulta a la estructura exacta de su base de datos (ej. tipo de columna para `idiomas`).

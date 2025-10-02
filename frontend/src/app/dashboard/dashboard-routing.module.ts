@@ -14,6 +14,10 @@ const routes: Routes = [
   {
     path: 'contact/:id',
     component: ContactCardComponent
+  },
+  {
+    path: 'correct-data',
+    loadComponent: () => import('./components/data-correction/data-correction.component').then(m => m.DataCorrectionComponent)
   }
 ];
 

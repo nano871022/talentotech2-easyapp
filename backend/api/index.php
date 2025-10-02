@@ -19,6 +19,7 @@ $routes = [
     'POST' => [
         '/v1/auth/login' => [AuthController::class, 'login'],
         '/v1/requests' => [RequestController::class, 'createRequest'],
+        '/v1/requests/correct-data' => [RequestController::class, 'correctData'],
     ],
     'GET' => [
         '/v1/requests' => [RequestController::class, 'getRequests'], // Exact match for list
