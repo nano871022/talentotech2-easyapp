@@ -8,6 +8,9 @@ module.exports = function (config) {
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular/build'],
+    plugins: [
+      // All plugins are loaded automatically by the @angular/build framework
+    ],
     client: {
       jasmine: {
         // you can add configuration options for Jasmine here
