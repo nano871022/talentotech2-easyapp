@@ -37,6 +37,14 @@ export interface RequestFilters {
   fecha_creacion_fin?: string;
 }
 
+// Define an interface for the request summary data
+export interface RequestSummary {
+  nombreSolicitante: string;
+  estado: string;
+  idiomasSolicitados: string[];
+  requestId: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -71,6 +79,16 @@ export class RequestService {
   }
 
   /**
+   * Fetches the summary of a specific advisory request.
+   * @param id The ID of the request.
+   * @returns An Observable containing a RequestSummary object.
+   */
+  getRequestSummary(id: number): Observable<RequestSummary> {
+    return this.http.get<RequestSummary>(`${this.apiUrl}/summary/${id}`);
+    }
+  
+
+   /**
    * Fetches the detailed information for a single advisory request.
    * @param id The ID of the request to fetch.
    * @returns An Observable containing the detailed request data.

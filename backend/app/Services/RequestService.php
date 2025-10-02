@@ -50,6 +50,16 @@ class RequestService
     }
 
     /**
+     * Fetches the data for a request summary.
+     *
+     * @param int $id The ID of the request.
+     * @return array|null The summary data or null if not found.
+     */
+    public function fetchRequestSummary(int $id): ?array
+    {
+        return $this->requestRepository->findSummaryById($id);
+    }
+     /**
      * Fetches a single advisory request by its ID.
      *
      * @param int $id The ID of the request.
