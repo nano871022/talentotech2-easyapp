@@ -123,4 +123,44 @@ class RequestRepository
         }
         return null;
     }
+
+    /**
+     * Finds the necessary data for a request summary by its ID.
+     *
+     * @param int $id The ID of the request.
+     * @return array|null An associative array with summary data or null if not found.
+     */
+    public function findSummaryById(int $id): ?array
+    {
+        $request = $this->findById($id);
+        if (!$request) {
+            return null;
+        }
+
+        // Fetch associated languages.
+        // Note: The table `solicitud_idiomas` and column `idioma_nombre` are assumed
+        // based on the requirements, as the schema details are not provided.
+        $languages = [];
+        if ($this->db) {
+            $sql = "SELECT idioma_nombre FROM solicitud_idiomas WHERE solicitud_id = :id";
+            try {
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $languages[] = $row['idioma_nombre'];
+                }
+            } catch (PDOException $e) {
+                error_log('RequestRepository Error - findSummaryById languages: ' . $e->getMessage());
+                // Depending on requirements, you might want to return null or an empty array for languages.
+            }
+        }
+
+        return [
+            'nombreSolicitante' => $request->getNombre(),
+            'estado' => $request->getEstado(),
+            'idiomasSolicitados' => $languages,
+            'requestId' => $request->getId()
+        ];
+    }
 }

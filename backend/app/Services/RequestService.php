@@ -44,4 +44,15 @@ class RequestService
     {
         return $this->requestRepository->findAll();
     }
+
+    /**
+     * Fetches the data for a request summary.
+     *
+     * @param int $id The ID of the request.
+     * @return array|null The summary data or null if not found.
+     */
+    public function fetchRequestSummary(int $id): ?array
+    {
+        return $this->requestRepository->findSummaryById($id);
+    }
 }

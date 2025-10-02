@@ -93,4 +93,37 @@ class RequestController
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching requests.']);
         }
     }
+
+    /**
+     * Handles fetching a single request summary.
+     */
+    public function getRequestSummary(): void
+    {
+        // This is a simplified way to get the ID from the URL,
+        // assuming a URL structure like /v1/requests/summary/123
+        $pathParts = explode('/', trim($_SERVER['PATH_INFO'], '/'));
+        $id = end($pathParts);
+
+        if (!is_numeric($id)) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid request ID.']);
+            return;
+        }
+
+        try {
+            $summary = $this->getService()->fetchRequestSummary((int)$id);
+
+            if ($summary) {
+                http_response_code(200);
+                echo json_encode($summary);
+            } else {
+                http_response_code(404); // Not Found
+                echo json_encode(['error' => 'Not Found', 'message' => 'Request summary not found.']);
+            }
+        } catch (\Exception $e) {
+            error_log('Fetch Request Summary Error: ' . $e->getMessage());
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching the request summary.']);
+        }
+    }
 }

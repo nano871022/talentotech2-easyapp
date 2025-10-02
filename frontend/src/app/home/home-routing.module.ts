@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'register',
     component: RegisterPageComponent
+  },
+  {
+    path: 'summary/:id',
+    loadComponent: () => import('./components/request-summary/request-summary.component').then(m => m.RequestSummaryComponent)
   }
 ];
 
