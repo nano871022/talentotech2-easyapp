@@ -1,18 +1,25 @@
-# Usar una imagen oficial de PHP con Apache
-FROM php:8.2-apache
+# Use an official PHP-FPM image as a base
+FROM php:8.2-fpm
 
-# Instalar las extensiones de PHP necesarias
-# pdo_mysql para la conexión con MySQL
-RUN docker-php-ext-install pdo_mysql
+# Set the working directory in the container
+WORKDIR /var/www
 
-# Habilitar el módulo rewrite de Apache para URLs amigables
-RUN a2enmod rewrite
+# Install necessary PHP extensions
+# pdo_mysql for database connectivity
+# opcache for performance
+RUN docker-php-ext-install pdo_mysql && docker-php-ext-enable opcache
 
-# Copiar el código de la aplicación al directorio web de Apache
-COPY . /var/www/html/
+# Copy the backend application files into the container
+# This assumes the Docker build context is the project root
+COPY backend/ /var/www/
 
-# Establecer los permisos correctos para los archivos de la aplicación
-RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+# Set permissions for the application files
+# The user www-data is the default user for PHP-FPM
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 755 /var/www
 
-# Exponer el puerto 80 para el servidor web Apache
-EXPOSE 80
+# Expose the port on which PHP-FPM listens
+EXPOSE 9000
+
+# The default command for the php-fpm image is to start the FPM server
+CMD ["php-fpm"]

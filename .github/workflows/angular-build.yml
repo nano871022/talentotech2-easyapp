@@ -1,0 +1,42 @@
+name: Angular Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Angular Application
+      run: npm run build -- --configuration production
+
+    - name: Archive production build
+      uses: actions/upload-artifact@v4
+      with:
+        name: angular-dist
+        path: frontend/dist/
