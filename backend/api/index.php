@@ -4,7 +4,7 @@
 header("Content-Type: application/json");
 
 // Include Composer's autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+//require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AuthController;
 use App\Controllers\RequestController;
@@ -12,22 +12,22 @@ use App\Controllers\InfoController;
 
 // Basic request routing
 $method = $_SERVER['REQUEST_METHOD'];
-$path = $_SERVER['PATH_INFO'] ?? '/';
+$path = $_SERVER['REQUEST_URI'] ?? '/';
 
 // Define the API routes, including regex for dynamic paths
 $routes = [
     'POST' => [
-        '/v1/auth/login' => [AuthController::class, 'login'],
-        '/v1/requests' => [RequestController::class, 'createRequest'],
-        '/v1/requests/correct-data' => [RequestController::class, 'correctData'],
+        '/api/v1/auth/login' => [AuthController::class, 'login'],
+        '/api/v1/requests' => [RequestController::class, 'createRequest'],
+        '/api/v1/requests/correct-data' => [RequestController::class, 'correctData'],
     ],
     'GET' => [
-        '/v1/requests' => [RequestController::class, 'getRequests'], // Exact match for list
-        '~^/v1/requests/\d+$~' => [RequestController::class, 'getRequest'], // Regex for /v1/requests/{id}
-        '/v1/info/landing' => [InfoController::class, 'getLandingInfo'],
+        '/api/v1/requests' => [RequestController::class, 'getRequests'], // Exact match for list
+        '~^/api/v1/requests/\d+$~' => [RequestController::class, 'getRequest'], // Regex for /v1/requests/{id}
+        '/api/v1/info/landing' => [InfoController::class, 'getLandingInfo'],
     ],
     'PUT' => [
-        '~^/v1/requests/\d+/status$~' => [RequestController::class, 'updateStatus'], // Regex for /v1/requests/{id}/status
+        '~^/api/v1/requests/\d+/status$~' => [RequestController::class, 'updateStatus'], // Regex for /v1/requests/{id}/status
     ],
 ];
 
@@ -53,7 +53,7 @@ if (isset($routes[$method])) {
 
 if (!$handler) {
     // Check for dynamic routes (e.g., /v1/requests/summary/{id})
-    if ($method === 'GET' && preg_match('/^\/v1\/requests\/summary\/(\d+)$/', $path, $matches)) {
+    if ($method === 'GET' && preg_match('/^\/api\/v1\/requests\/summary\/(\d+)$/', $path, $matches)) {
         // We have a match, set the handler manually
         $handler = [RequestController::class, 'getRequestSummary'];
     }
@@ -76,5 +76,5 @@ if ($handler) {
 } else {
     // Handle 404 Not Found for all other cases
     http_response_code(404);
-    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.']);
+    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.',"method"=>"$method","path"=>"$path","next"=>isset($routes[$method][$path]),"Uri"=>"$uri"]);
 }
