@@ -1,5 +1,14 @@
 <?php
+// Set CORS headers to allow requests from the Angular development server
+header("Access-Control-Allow-Origin: http://localhost:4200");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+// Handle preflight OPTIONS requests sent by browsers
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // No Content
+    exit;
+}
 // Set the content type for all API responses to JSON
 header("Content-Type: application/json");
 
