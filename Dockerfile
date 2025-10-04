@@ -1,20 +1,27 @@
-# Use an official PHP-FPM image as a base
+# Stage 1: Install dependencies with Composer
+FROM composer:2 as vendor
+WORKDIR /app
+COPY backend/composer.json .
+COPY backend/composer.lock .
+RUN composer install --no-dev --no-interaction --optimize-autoloader
+
+# Stage 2: Build the final PHP-FPM image
 FROM php:8.2-fpm
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /var/www
 
-# Install necessary PHP extensions
-# pdo_mysql for database connectivity
-# opcache for performance
+# Install required PHP extensions
 RUN docker-php-ext-install pdo_mysql && docker-php-ext-enable opcache
 
-# Copy the backend application files into the container
-# This assumes the Docker build context is the project root
+# Copy application code from the host
 COPY backend/ /var/www/
 
-# Set permissions for the application files
-# The user www-data is the default user for PHP-FPM
+# Copy the vendor directory from the composer stage
+COPY --from=vendor /app/vendor/ /var/www/vendor/
+
+# Set correct permissions for the application files
+# The www-data user is the default for PHP-FPM
 RUN chown -R www-data:www-data /var/www && \
     chmod -R 755 /var/www
 

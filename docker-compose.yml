@@ -23,6 +23,7 @@ services:
     container_name: app-backend-php
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
     environment:
       # Pass database credentials from the .env file
       - DB_HOST=${DB_HOST}
