@@ -18,6 +18,7 @@ $path = $_SERVER['REQUEST_URI'] ?? '/';
 $routes = [
     'POST' => [
         '/api/v1/auth/login' => [AuthController::class, 'login'],
+        '/api/v1/auth/register' => [AuthController::class, 'register'],
         '/api/v1/requests' => [RequestController::class, 'createRequest'],
         '/api/v1/requests/correct-data' => [RequestController::class, 'correctData'],
     ],

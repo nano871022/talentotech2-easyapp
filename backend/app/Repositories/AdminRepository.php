@@ -60,4 +60,39 @@ class AdminRepository
 
         return null;
     }
+
+    /**
+     * Creates a new administrator in the database.
+     *
+     * @param string $username The admin's username.
+     * @param string $passwordHash The hashed password.
+     * @param string $name The admin's name.
+     * @return Admin|null The created Admin object on success, null on failure.
+     */
+    public function create(string $username, string $passwordHash, string $name): ?Admin
+    {
+        if ($this->db === null) {
+            error_log('AdminRepository Error: Database connection is not available.');
+            return null;
+        }
+
+        $sql = "INSERT INTO admins (usuario, password_hash, nombre) VALUES (:usuario, :password_hash, :nombre)";
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':usuario', $username, PDO::PARAM_STR);
+            $stmt->bindValue(':password_hash', $passwordHash, PDO::PARAM_STR);
+            $stmt->bindValue(':nombre', $name, PDO::PARAM_STR);
+
+            if ($stmt->execute()) {
+                $id = $this->db->lastInsertId();
+                return new Admin($username, $passwordHash, $name, (int)$id);
+            }
+        } catch (PDOException $e) {
+            // Log the error, especially for unique constraint violations
+            error_log('AdminRepository Error - create: ' . $e->getMessage());
+        }
+
+        return null;
+    }
 }
