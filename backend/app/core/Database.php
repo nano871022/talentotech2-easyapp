@@ -52,10 +52,11 @@ class Database
             self::loadEnv();
 
             $host = self::$env['DB_HOST'] ?? 'localhost';
+            $port = self::$env['DB_PORT'] ?? '3306';
             $dbname = self::$env['DB_NAME'] ?? '';
             $user = self::$env['DB_USER'] ?? '';
             $pass = self::$env['DB_PASS'] ?? '';
-            $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
