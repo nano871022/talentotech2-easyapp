@@ -2,7 +2,7 @@
 FROM composer:2 as vendor
 WORKDIR /app
 COPY backend/composer.json .
-COPY backend/composer.lock .
+#COPY backend/composer.lock .
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 # Stage 2: Build the final PHP-FPM image

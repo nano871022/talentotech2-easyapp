@@ -4,7 +4,7 @@
 header("Content-Type: application/json");
 
 // Include Composer's autoloader
-//require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AuthController;
 use App\Controllers\RequestController;
