@@ -35,21 +35,16 @@ class AuthController
         $password = $data['password'];
 
         try {
-            $admin = $this->authService->authenticate($usuario, $password);
+            // The authenticate method now returns a JWT string on success or null on failure.
+            $token = $this->authService->authenticate($usuario, $password);
 
-            if ($admin) {
-                // In a stateless API, we would issue a token (e.g., JWT).
-                // For this simulation, we'll return a success message.
+            if ($token) {
+                // On successful login, return the JWT.
                 http_response_code(200);
                 echo json_encode([
                     'status' => 'success',
                     'message' => 'Login successful.',
-                    // Exposing limited admin data is fine for this context
-                    'admin' => [
-                        'id' => $admin->getId(),
-                        'name' => $admin->getNombre(),
-                        'username' => $admin->getUsuario()
-                    ]
+                    'token' => $token
                 ]);
             } else {
                 http_response_code(401); // Unauthorized

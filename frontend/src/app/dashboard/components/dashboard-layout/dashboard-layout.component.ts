@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule } from '@angular
 import { Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
 import { RequestService, AdvisoryRequest, RequestFilters } from '../../../core/services/request.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -23,7 +24,8 @@ export class DashboardLayoutComponent implements OnInit {
 
   constructor(
     private requestService: RequestService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -79,5 +81,9 @@ export class DashboardLayoutComponent implements OnInit {
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
