@@ -26,19 +26,8 @@ $path = $_SERVER['REQUEST_URI'] ?? '/';
 
 // Define the API routes, including regex for dynamic paths
 $routes = [
-    'POST' => [
-        '/api/v1/auth/login' => [AuthController::class, 'login'],
-        '/api/v1/auth/register' => [AuthController::class, 'register'],
-        '/api/v1/requests' => [RequestController::class, 'createRequest'],
-        '/api/v1/requests/correct-data' => [RequestController::class, 'correctData'],
-    ],
     'GET' => [
-        '/api/v1/requests' => [RequestController::class, 'getRequests'], // Exact match for list
-        '~^/api/v1/requests/\d+$~' => [RequestController::class, 'getRequest'], // Regex for /v1/requests/{id}
         '/api/v1/info/landing' => [InfoController::class, 'getLandingInfo'],
-    ],
-    'PUT' => [
-        '~^/api/v1/requests/\d+/status$~' => [RequestController::class, 'updateStatus'], // Regex for /v1/requests/{id}/status
     ],
 ];
 

@@ -11,7 +11,7 @@ use PDOException;
  * RequestRepository
  * Provides methods to interact with the `contactos` table (advisory requests).
  */
-class RequestRepository
+class MysqlRequestRepository implements RequestRepositoryInterface
 {
     private ?PDO $db;
 

@@ -17,7 +17,7 @@ class AuthController
     {
         // Lazily instantiate the service to avoid issues if a dependency fails
         if ($this->authService === null) {
-            $this->authService = new AuthService();
+            $this->authService = AuthService::create();
         }
 
         // Get the raw POST data from the request body
