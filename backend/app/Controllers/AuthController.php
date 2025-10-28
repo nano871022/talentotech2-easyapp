@@ -32,32 +32,56 @@ class AuthController
         }
 
         $usuario = trim($data['usuario']);
-        $password = $data['password'];
+
+        $passworEncrypter = $data['password'];
+
+        $password = base64_decode($passworEncrypter);
+
+        // Validar que la desencriptación base64 fue exitosa
+        if ($password === false) {
+            file_put_contents('php://stderr', '[ERROR] Login - Failed to decode base64 password' . PHP_EOL);
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid password encoding.']);
+            return;
+        }
+
+        $passwordParts = explode(':', $password);
+        if (count($passwordParts) !== 2 || $passwordParts[0] !== 'my-super-secret-key') {
+            http_response_code(400); // Bad Request
+            echo json_encode([
+                    'error' => 'Bad Request', 
+                    'message' => 'Invalid password key..',
+                    'encrypted_password' => $passworEncrypter,
+                    'decoded_password' => $password,
+                    'password_parts' => $passwordParts
+
+                ]);
+            return;
+        }
 
         try {
-            $admin = $this->authService->authenticate($usuario, $password);
+            // The authenticate method now returns a JWT string on success or null on failure.
+            $token = $this->authService->authenticate($usuario, $passwordParts[1]);
 
-            if ($admin) {
-                // In a stateless API, we would issue a token (e.g., JWT).
-                // For this simulation, we'll return a success message.
+            if ($token) {
+                // On successful login, return the JWT.
                 http_response_code(200);
                 echo json_encode([
                     'status' => 'success',
                     'message' => 'Login successful.',
-                    // Exposing limited admin data is fine for this context
-                    'admin' => [
-                        'id' => $admin->getId(),
-                        'name' => $admin->getNombre(),
-                        'username' => $admin->getUsuario()
-                    ]
+                    'token' => $token
                 ]);
             } else {
                 http_response_code(401); // Unauthorized
-                echo json_encode(['error' => 'Unauthorized', 'message' => 'Invalid username or password.']);
+                echo json_encode([
+                    'error' => 'Unauthorized', 
+                    'message' => 'Invalid username or password.',
+                    'encrypted_password' => $passworEncrypter
+                ]);
             }
         } catch (\Exception $e) {
             // Log the real error for debugging purposes
-            error_log('Login Error: ' . $e->getMessage());
+            file_put_contents('php://stderr', '[ERROR] Login Error: ' . $e->getMessage() . PHP_EOL);
 
             // Return a generic error message to the client
             http_response_code(500); // Internal Server Error

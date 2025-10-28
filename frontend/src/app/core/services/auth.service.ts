@@ -1,27 +1,54 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root' // Provided in the root injector, available application-wide
+  providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = `${environment.API_BASE_URL}/auth`;
+  private readonly TOKEN_KEY = 'authToken';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   /**
-   * Sends login credentials to the backend API.
-   * @param credentials An object containing the user's 'usuario' and 'password'.
-   * @returns An Observable with the response from the API.
+   * Sends login credentials to the backend API and stores the token on success.
+   * @param credentials An object containing 'usuario' and 'password'.
+   * @returns An Observable with the API response.
    */
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials);
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        if (response && response.token) {
+          localStorage.setItem(this.TOKEN_KEY, response.token);
+        }
+      })
+    );
   }
 
-  // In a real application, we would add methods for logout, token management, etc.
-  // logout(): void { ... }
-  // getToken(): string | null { ... }
-  // isAuthenticated(): boolean { ... }
+  /**
+   * Removes the token from storage and navigates to the login page.
+   */
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.router.navigate(['/auth/login']);
+  }
+
+  /**
+   * Retrieves the stored authentication token.
+   * @returns The token string or null if not found.
+   */
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  /**
+   * Checks if a user is authenticated by verifying the presence of a token.
+   * @returns True if a token exists, false otherwise.
+   */
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
 }

@@ -15,7 +15,7 @@ class Request
         private ?int $id = null,
         private string $estado = 'nuevo',
         private ?string $created_at = null,
-        private ?string $idiomas = null
+        private ?array $idiomas = null
     ) {}
 
     // --- Getters ---

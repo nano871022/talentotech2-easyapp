@@ -14,6 +14,13 @@ export interface AdvisoryRequest {
   fecha_contacto: string;
 }
 
+export interface Advisory{
+  nombre: string;
+  correo: string;
+  telefono: string;
+  idiomas: string[]
+}
+
 // Define an interface for the detailed request data
 export interface RequestDetail {
   id: number;
@@ -49,7 +56,7 @@ export interface RequestSummary {
   providedIn: 'root'
 })
 export class RequestService {
-  private apiUrl = `${environment.API_BASE_URL}/v1/requests`;
+  private apiUrl = `${environment.API_BASE_URL}/requests`;
 
   constructor(private http: HttpClient) { }
 
@@ -86,7 +93,7 @@ export class RequestService {
   getRequestSummary(id: number): Observable<RequestSummary> {
     return this.http.get<RequestSummary>(`${this.apiUrl}/summary/${id}`);
     }
-  
+
 
    /**
    * Fetches the detailed information for a single advisory request.
@@ -117,6 +124,14 @@ export class RequestService {
    */
   correctData(data: { requestId: number; campoACorregir: string; valorAnterior: string; valorNuevo: string; }): Observable<any> {
     const url = `${this.apiUrl}/correct-data`;
+    return this.http.post(url, data);
+  }
+
+  /**
+   * create a put request to creating data with service requests
+   */
+  createRequest(data: Advisory): Observable<any> {
+    const url = `${this.apiUrl}`
     return this.http.post(url, data);
   }
 }

@@ -18,6 +18,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\AuthController;
 use App\Controllers\RequestController;
 use App\Controllers\InfoController;
+use App\Middleware\JwtMiddleware;
 
 // Basic request routing
 $method = $_SERVER['REQUEST_METHOD'];
@@ -73,6 +74,15 @@ if (!$handler) {
 if ($handler) {
     $controllerName = $handler[0];
     $methodName = $handler[1];
+
+    // Protect all routes handled by RequestController
+    if ($controllerName === RequestController::class) {
+        $jwtMiddleware = new JwtMiddleware();
+        if (!$jwtMiddleware->handle()) {
+            // Middleware handles the response, so we just stop execution
+            exit;
+        }
+    }
 
     try {
         $controller = new $controllerName();

@@ -3,10 +3,16 @@
   <div class="bg-background-light dark:bg-background-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-md">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold">Filtros</h2>
-      <button (click)="toggleFilters()" class="flex items-center text-sm font-semibold text-text-light dark:text-text-dark">
-        Minimizar Filtros
-        <span class="material-icons ml-1 transform transition-transform" [ngClass]="{ 'rotate-90': !filtersVisible, '-rotate-90': filtersVisible }">chevron_left</span>
-      </button>
+      <div>
+        <button (click)="toggleFilters()" class="flex items-center text-sm font-semibold text-text-light dark:text-text-dark mr-4">
+          Minimizar Filtros
+          <span class="material-icons ml-1 transform transition-transform" [ngClass]="{ 'rotate-90': !filtersVisible, '-rotate-90': filtersVisible }">chevron_left</span>
+        </button>
+        <button (click)="logout()" class="flex items-center text-sm font-semibold text-red-500 dark:text-red-400">
+          Logout
+          <span class="material-icons ml-1">exit_to_app</span>
+        </button>
+      </div>
     </div>
 
     <form [formGroup]="filterForm" *ngIf="filtersVisible" class="space-y-6">

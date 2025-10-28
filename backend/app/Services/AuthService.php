@@ -4,14 +4,18 @@ namespace App\Services;
 
 use App\Models\Admin;
 use App\Repositories\AdminRepository;
+use Firebase\JWT\JWT;
 
 class AuthService
 {
     private AdminRepository $adminRepository;
+    private string $jwtSecret;
 
     public function __construct()
     {
         $this->adminRepository = new AdminRepository();
+        // In a real application, this secret should be stored securely (e.g., environment variables)
+        $this->jwtSecret = 'your-super-secret-key-for-jwt';
     }
 
     /**
@@ -19,9 +23,9 @@ class AuthService
      *
      * @param string $username The admin's username.
      * @param string $password The admin's plain-text password.
-     * @return Admin|null The Admin object on success, null on failure.
+     * @return string|null The JWT on success, null on failure.
      */
-    public function authenticate(string $username, string $password): ?Admin
+    public function authenticate(string $username, string $password): ?string
     {
         $admin = $this->adminRepository->findByUsername($username);
 
@@ -29,28 +33,36 @@ class AuthService
             return null; // User not found
         }
 
-        // --- Password Decoding Logic ---
-        $sharedSecret = 'my-super-secret-key';
-
-        // 1. Decode the Base64 string
-        $decoded_password_parts = explode(':', base64_decode($password, true), 2);
-
-        // 2. Check if decoding was successful and the secret matches
-        if (count($decoded_password_parts) !== 2 || $decoded_password_parts[0] !== $sharedSecret) {
-            // If the secret is wrong or the format is incorrect, fail authentication
-            return null;
-        }
-
-        // 3. Get the plain-text password
-        $plainPassword = $decoded_password_parts[1];
-        // --- End of Decoding Logic ---
-
-        // 4. Verify the decoded password against the stored hash
-        if (password_verify($plainPassword, $admin->getPasswordHash())) {
-            return $admin;
+        // Verify the provided password against the stored hash.
+        if (password_verify($password, $admin->getPasswordHash())) {
+            // On successful authentication, generate a JWT.
+            return $this->generateToken($admin);
         }
 
         return null;
+    }
+
+    /**
+     * Generates a JWT for a given administrator.
+     *
+     * @param Admin $admin The administrator object.
+     * @return string The generated JWT.
+     */
+    private function generateToken(Admin $admin): string
+    {
+        $issuedAt = time();
+        $expirationTime = $issuedAt + 3600; // 1 hour
+        $payload = [
+            'iat' => $issuedAt,
+            'exp' => $expirationTime,
+            'data' => [
+                'userId' => $admin->getId(),
+                // Assuming a default role ID as it is not in the model
+                'roleId' => 1,
+            ]
+        ];
+
+        return JWT::encode($payload, $this->jwtSecret, 'HS256');
     }
 
     /**
