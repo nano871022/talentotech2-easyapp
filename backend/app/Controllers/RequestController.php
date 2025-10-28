@@ -30,16 +30,17 @@ class RequestController
 
         if (json_last_error() !== JSON_ERROR_NONE || !isset($data['nombre']) || !isset($data['correo'])) {
             http_response_code(400); // Bad Request
-            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid JSON or missing required fields.']);
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid JSON or missing required fields..']);
             return;
         }
 
         $nombre = trim($data['nombre']);
         $correo = trim($data['correo']);
         $telefono = isset($data['telefono']) ? trim($data['telefono']) : null;
+        $idiomas = isset($data['idiomas']) ? $data['idiomas'] : [];
 
         try {
-            $newRequest = $this->getService()->createAdvisoryRequest($nombre, $correo, $telefono);
+            $newRequest = $this->getService()->createAdvisoryRequest($nombre, $correo, $telefono,$idiomas);
             if ($newRequest) {
                 http_response_code(201); // Created
                 echo json_encode([
@@ -225,7 +226,7 @@ class RequestController
     {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
-
+        try {
         // Validate input data
         if (json_last_error() !== JSON_ERROR_NONE || !isset($data['requestId'], $data['campoACorregir'], $data['valorAnterior'], $data['valorNuevo'])) {
             http_response_code(400); // Bad Request
@@ -245,6 +246,7 @@ class RequestController
                 http_response_code($result['code'] ?? 400);
                 echo json_encode(['error' => 'Operation Failed', 'message' => $result['message']]);
             }
+        }
         } catch (\Exception $e) {
             error_log('Correct Data Error: ' . $e->getMessage());
             http_response_code(500); // Internal Server Error

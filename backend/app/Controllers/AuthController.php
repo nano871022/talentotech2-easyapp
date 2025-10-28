@@ -32,11 +32,36 @@ class AuthController
         }
 
         $usuario = trim($data['usuario']);
-        $password = $data['password'];
+
+        $passworEncrypter = $data['password'];
+
+        $password = base64_decode($passworEncrypter);
+
+        // Validar que la desencriptación base64 fue exitosa
+        if ($password === false) {
+            file_put_contents('php://stderr', '[ERROR] Login - Failed to decode base64 password' . PHP_EOL);
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Bad Request', 'message' => 'Invalid password encoding.']);
+            return;
+        }
+
+        $passwordParts = explode(':', $password);
+        if (count($passwordParts) !== 2 || $passwordParts[0] !== 'my-super-secret-key') {
+            http_response_code(400); // Bad Request
+            echo json_encode([
+                    'error' => 'Bad Request', 
+                    'message' => 'Invalid password key..',
+                    'encrypted_password' => $passworEncrypter,
+                    'decoded_password' => $password,
+                    'password_parts' => $passwordParts
+
+                ]);
+            return;
+        }
 
         try {
             // The authenticate method now returns a JWT string on success or null on failure.
-            $token = $this->authService->authenticate($usuario, $password);
+            $token = $this->authService->authenticate($usuario, $passwordParts[1]);
 
             if ($token) {
                 // On successful login, return the JWT.
@@ -48,11 +73,15 @@ class AuthController
                 ]);
             } else {
                 http_response_code(401); // Unauthorized
-                echo json_encode(['error' => 'Unauthorized', 'message' => 'Invalid username or password.']);
+                echo json_encode([
+                    'error' => 'Unauthorized', 
+                    'message' => 'Invalid username or password.',
+                    'encrypted_password' => $passworEncrypter
+                ]);
             }
         } catch (\Exception $e) {
             // Log the real error for debugging purposes
-            error_log('Login Error: ' . $e->getMessage());
+            file_put_contents('php://stderr', '[ERROR] Login Error: ' . $e->getMessage() . PHP_EOL);
 
             // Return a generic error message to the client
             http_response_code(500); // Internal Server Error

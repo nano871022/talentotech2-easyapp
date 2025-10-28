@@ -26,7 +26,7 @@ class RequestService
      * @param string|null $telefono The optional phone number of the applicant.
      * @return Request|null The created Request object or null on failure.
      */
-    public function createAdvisoryRequest(string $nombre, string $correo, ?string $telefono): ?Request
+    public function createAdvisoryRequest(string $nombre, string $correo, ?string $telefono, array $idiomas): ?Request
     {
         // Basic validation
         if (empty($nombre) || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
@@ -34,7 +34,7 @@ class RequestService
             return null;
         }
 
-        $request = new Request($nombre, $correo, $telefono);
+        $request = new Request($nombre, $correo, $telefono, null,'nuevo', date('Y-m-d H:i:s'),$idiomas);
 
         return $this->requestRepository->save($request);
     }
