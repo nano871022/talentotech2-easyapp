@@ -15,18 +15,17 @@ services:
     networks:
       - app-network
 
-  # 2. Backend PHP-FPM Application Service
-  app-backend:
+  # 2. Auth Service
+  auth-service:
     build:
-      context: .
+      context: ./backend/auth-service
       dockerfile: Dockerfile
-    container_name: app-backend-php
+    container_name: auth-service
     volumes:
-      - ./backend:/var/www
+      - ./backend/auth-service:/var/www
       - /var/www/vendor
     environment:
-      # Pass database credentials from the .env file
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=db
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
@@ -35,22 +34,41 @@ services:
     networks:
       - app-network
 
-  # 3. Backend NGINX Reverse Proxy
-  nginx-backend:
-    image: nginx:alpine
-    container_name: app-backend-nginx
-    restart: always
-    ports:
-      - "${BACKEND_PORT}:80"
+  # 3. Advise Service
+  advise-service:
+    build:
+      context: ./backend/advise-service
+      dockerfile: Dockerfile
+    container_name: advise-service
     volumes:
-      - ./backend:/var/www
-      - ./docker/backend.conf:/etc/nginx/conf.d/default.conf
+      - ./backend/advise-service:/var/www
+      - /var/www/vendor
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
     depends_on:
-      - app-backend
+      - db
     networks:
       - app-network
 
-  # 4. Frontend Angular SPA Service (served by NGINX)
+  # 4. Nginx Reverse Proxy
+  nginx-proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "${BACKEND_PORT}:80"
+    depends_on:
+      - auth-service
+      - advise-service
+    networks:
+      - app-network
+
+  # 5. Frontend Angular SPA Service (served by NGINX)
   app-frontend:
     build:
       context: .
@@ -62,7 +80,7 @@ services:
     networks:
       - app-network
 
-  # 5. Static Assets Server (simulating a CDN)
+  # 6. Static Assets Server (simulating a CDN)
   static-server:
     image: nginx:alpine
     container_name: static-assets-server
@@ -74,7 +92,7 @@ services:
     networks:
       - app-network
 
-  # 6. phpMyAdmin Service
+  # 7. phpMyAdmin Service
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-container
@@ -82,7 +100,7 @@ services:
     ports:
       - "${PHPMYADMIN_PORT}:80"
     environment:
-      PMA_HOST: ${DB_HOST}
+      PMA_HOST: db
       PMA_USER: ${DB_USER}
       PMA_PASSWORD: ${DB_PASS}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -97,4 +115,4 @@ networks:
 
 volumes:
   db-data:
-    driver: local      
+    driver: local

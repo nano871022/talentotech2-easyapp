@@ -75,13 +75,13 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         return $requests;
     }
 
-    public function findById(int $id): ?Request
+    public function findById(string $id): ?Request
     {
         try {
             $result = $this->dynamoDb->getItem([
                 'TableName' => $this->tableName,
                 'Key' => [
-                    'id' => ['S' => (string)$id],
+                    'id' => ['S' => $id],
                 ],
             ]);
 
