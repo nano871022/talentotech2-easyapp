@@ -1,4 +1,7 @@
 
+# Docker Compose file for EasyApp Microservices Architecture
+# Environment variables are loaded from .env file
+
 services:
   # 1. Database Service (MySQL)
   db:
@@ -18,14 +21,21 @@ services:
   # 2. Auth Service
   auth-service:
     build:
-      context: ./backend/auth-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: auth.Dockerfile
     container_name: auth-service
     volumes:
-      - ./backend/auth-service:/var/www
+      # Mount only specific directories to avoid overwriting shared core files
+      - ./backend/auth-service/api:/var/www/api
+      - ./backend/auth-service/app/Controllers:/var/www/app/Controllers
+      - ./backend/auth-service/app/Models:/var/www/app/Models
+      - ./backend/auth-service/app/Repositories:/var/www/app/Repositories
+      - ./backend/auth-service/app/Services:/var/www/app/Services
       - /var/www/vendor
+      # Note: app/Core is NOT mounted as volume so shared files remain
     environment:
-      - DB_HOST=db
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
@@ -37,14 +47,21 @@ services:
   # 3. Advise Service
   advise-service:
     build:
-      context: ./backend/advise-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: advise.Dockerfile
     container_name: advise-service
     volumes:
-      - ./backend/advise-service:/var/www
+      # Mount only specific directories to avoid overwriting shared core files
+      - ./backend/advise-service/api:/var/www/api
+      - ./backend/advise-service/app/Controllers:/var/www/app/Controllers
+      - ./backend/advise-service/app/Models:/var/www/app/Models
+      - ./backend/advise-service/app/Repositories:/var/www/app/Repositories
+      - ./backend/advise-service/app/Services:/var/www/app/Services
       - /var/www/vendor
+      # Note: app/Core is NOT mounted as volume so shared files remain
     environment:
-      - DB_HOST=db
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
