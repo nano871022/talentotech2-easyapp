@@ -1,16 +1,22 @@
 name: Frontend CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      service_name: frontend
 
+  build:
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -18,22 +24,33 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20.10.0'
+          node-version: '24'
 
       - name: Install dependencies
         run: |
           cd frontend
           npm install
 
-      - name: Test
-        run: |
-          cd frontend
-          ./node_modules/.bin/ng test --browsers=ChromeHeadlessCI
-
       - name: Build
         run: |
           cd frontend
           ./node_modules/.bin/ng build --configuration production
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend-build
+          path: frontend/dist/angular-app
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-build
+          path: frontend-build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -44,4 +61,4 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/dist/angular-app s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
+          aws s3 sync frontend-build s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
