@@ -1,0 +1,21 @@
+name: Main CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auth:
+    uses: ./.github/workflows/auth-service-ci-cd.yml
+    secrets: inherit
+
+  frontend:
+    needs: auth
+    uses: ./.github/workflows/frontend-ci-cd.yml
+    secrets: inherit
+
+  advise:
+    needs: frontend
+    uses: ./.github/workflows/advise-service-ci-cd.yml
+    secrets: inherit

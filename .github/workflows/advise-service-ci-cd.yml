@@ -1,16 +1,21 @@
 name: Advise Service CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/advise-service/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      service_name: advise-service
 
+  build:
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,16 +30,30 @@ jobs:
           cd backend/advise-service
           composer install --no-dev --optimize-autoloader
 
-      - name: Run tests
+      - name: Copy Core and Middleware directories
         run: |
-          cd backend/advise-service
-          # No tests yet, but this is where they would run
-          echo "No tests found"
+          cp -r backend/app/Core backend/advise-service/app/Core
+          cp -r backend/app/Middleware backend/advise-service/app/Middleware
 
       - name: Create deployment package
         run: |
           cd backend/advise-service
           zip -r deployment.zip . -x "*.git*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: advise-deployment-package
+          path: backend/advise-service/deployment.zip
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: advise-deployment-package
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -44,5 +63,4 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to AWS Lambda
-        run: |
-          aws lambda update-function-code --function-name ${{ secrets.ADVISE_LAMBDA_FUNCTION_NAME }} --zip-file fileb://backend/advise-service/deployment.zip
+        run: aws lambda update-function-code --function-name ${{ secrets.ADVISE_LAMBDA_FUNCTION_NAME }} --zip-file fileb://deployment.zip

@@ -1,16 +1,21 @@
 name: Auth Service CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/auth-service/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      service_name: auth-service
 
+  build:
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,16 +30,30 @@ jobs:
           cd backend/auth-service
           composer install --no-dev --optimize-autoloader
 
-      - name: Run tests
+      - name: Copy Core and Middleware directories
         run: |
-          cd backend/auth-service
-          # No tests yet, but this is where they would run
-          echo "No tests found"
+          cp -r backend/app/Core backend/auth-service/app/Core
+          cp -r backend/app/Middleware backend/auth-service/app/Middleware
 
       - name: Create deployment package
         run: |
           cd backend/auth-service
           zip -r deployment.zip . -x "*.git*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: auth-deployment-package
+          path: backend/auth-service/deployment.zip
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: auth-deployment-package
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -44,5 +63,4 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to AWS Lambda
-        run: |
-          aws lambda update-function-code --function-name ${{ secrets.AUTH_LAMBDA_FUNCTION_NAME }} --zip-file fileb://backend/auth-service/deployment.zip
+        run: aws lambda update-function-code --function-name ${{ secrets.AUTH_LAMBDA_FUNCTION_NAME }} --zip-file fileb://deployment.zip
