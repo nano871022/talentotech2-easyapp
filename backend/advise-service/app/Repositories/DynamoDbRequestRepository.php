@@ -37,7 +37,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     'correo'    => ['S' => $request->getCorreo()],
                     'telefono'  => ['S' => $request->getTelefono()],
                     'estado'    => ['S' => 'pending'],
-                    'idiomas'   => ['S' => $request->getIdiomas()],
+                    'idiomas'   => ['S' => $request->getIdiomas() ? json_encode($request->getIdiomas()) : ''],
                 ],
             ]);
 
@@ -58,6 +58,8 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
             ]);
 
             foreach ($result['Items'] as $item) {
+                $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
+                
                 $requests[] = new Request(
                     $item['nombre']['S'],
                     $item['correo']['S'],
@@ -65,7 +67,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     $item['id']['S'],
                     $item['estado']['S'],
                     $item['createdAt']['S'],
-                    $item['idiomas']['S']
+                    $idiomas
                 );
             }
         } catch (AwsException $e) {
@@ -87,6 +89,8 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
 
             if (isset($result['Item'])) {
                 $item = $result['Item'];
+                $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
+                
                 return new Request(
                     $item['nombre']['S'],
                     $item['correo']['S'],
@@ -94,7 +98,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     $item['id']['S'],
                     $item['estado']['S'],
                     $item['createdAt']['S'],
-                    $item['idiomas']['S']
+                    $idiomas
                 );
             }
         } catch (AwsException $e) {
@@ -114,7 +118,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         return [
             'nombreSolicitante' => $request->getNombre(),
             'estado' => $request->getEstado(),
-            'idiomasSolicitados' => explode(',', $request->getIdiomas()),
+            'idiomasSolicitados' => $request->getIdiomas() ?? [],
             'requestId' => $request->getId()
         ];
     }

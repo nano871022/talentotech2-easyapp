@@ -29,7 +29,7 @@ class RequestService
         return new self($repository);
     }
 
-    public function createRequest(string $nombre, string $correo, string $telefono, string $idiomas): ?Request
+    public function createRequest(string $nombre, string $correo, string $telefono, ?array $idiomas): ?Request
     {
         $request = new Request($nombre, $correo, $telefono, null, 'pending', date('Y-m-d H:i:s'), $idiomas);
         return $this->requestRepository->save($request);

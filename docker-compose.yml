@@ -39,6 +39,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - db
     networks:
@@ -57,6 +58,7 @@ services:
       - ./backend/advise-service/app/Models:/var/www/app/Models
       - ./backend/advise-service/app/Repositories:/var/www/app/Repositories
       - ./backend/advise-service/app/Services:/var/www/app/Services
+      - ./backend/app/Middleware:/var/www/app/Middleware
       - /var/www/vendor
       # Note: app/Core is NOT mounted as volume so shared files remain
     environment:
@@ -65,6 +67,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - db
     networks:

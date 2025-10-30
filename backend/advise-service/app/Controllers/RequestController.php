@@ -30,7 +30,14 @@ class RequestController
         $nombre = trim($data['nombre']);
         $correo = trim($data['correo']);
         $telefono = isset($data['telefono']) ? trim($data['telefono']) : null;
-        $idiomas = isset($data['idiomas']) ? implode(',', $data['idiomas']) : '';
+        $idiomas = isset($data['idiomas']) ? $data['idiomas'] : null;
+        
+        // Validate that idiomas is an array if provided
+        if ($idiomas !== null && !is_array($idiomas)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad Request', 'message' => 'idiomas must be an array.']);
+            return;
+        }
 
         try {
             $newRequest = $this->getService()->createRequest($nombre, $correo, $telefono, $idiomas);
@@ -43,7 +50,8 @@ class RequestController
                         'id' => $newRequest->getId(),
                         'nombre' => $newRequest->getNombre(),
                         'correo' => $newRequest->getCorreo(),
-                        'telefono' => $newRequest->getTelefono()
+                        'telefono' => $newRequest->getTelefono(),
+                        'idiomas' => $newRequest->getIdiomas()
                     ]
                 ]);
             } else {
@@ -70,6 +78,7 @@ class RequestController
                     'telefono' => $request->getTelefono(),
                     'estado' => $request->getEstado(),
                     'fecha_solicitud' => (new \DateTime($request->getCreatedAt()))->format('Y-m-d H:i:s'),
+                    'idiomas' => $request->getIdiomas() ?? []
                 ];
             }, $requests);
 
@@ -126,7 +135,7 @@ class RequestController
                     'nombre' => $request->getNombre(),
                     'correo' => $request->getCorreo(),
                     'telefono' => $request->getTelefono(),
-                    'idiomas' => explode(',', $request->getIdiomas()),
+                    'idiomas' => $request->getIdiomas(),
                     'estado_contacto' => (bool)$request->getEstado(),
                     'fecha_creacion' => (new \DateTime($request->getCreatedAt()))->format('Y-m-d H:i:s'),
                 ]);

@@ -35,7 +35,7 @@ class AuthService
         $admin = $this->adminRepository->findByUsername($username);
 
         if ($admin && password_verify($password, $admin->getPasswordHash())) {
-            $secretKey = $_ENV['JWT_SECRET'] ?? 'your-default-secret';
+            $secretKey = $_ENV['JWT_SECRET'] ?? 'your-super-secret-key-for-jwt';
             $payload = [
                 'iat' => time(),
                 'exp' => time() + 3600,

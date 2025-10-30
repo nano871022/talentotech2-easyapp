@@ -44,9 +44,10 @@ RUN composer install --no-scripts --no-autoloader --prefer-dist
 # Step 3: Copy all advise-service application files
 COPY advise-service/ ./
 
-# Step 4: Copy shared Core files from the common app directory
-RUN mkdir -p app/Core
+# Step 4: Copy shared Core and Middleware files from the common app directory
+RUN mkdir -p app/Core app/Middleware
 COPY app/Core/ ./app/Core/
+COPY app/Middleware/ ./app/Middleware/
 
 # Step 5: Generate optimized autoloader for production
 RUN composer dump-autoload --optimize
@@ -61,13 +62,17 @@ WORKDIR /var/www
 RUN cp -r /build/. /var/www/ && \
     rm -rf /build
 
-# Step 7: Copy Core files directly to final location
-RUN mkdir -p /var/www/app/Core
+# Step 7: Copy Core and Middleware files directly to final location
+RUN mkdir -p /var/www/app/Core /var/www/app/Middleware
 COPY app/Core/ /var/www/app/Core/
+COPY app/Middleware/ /var/www/app/Middleware/
 
 # Note: Environment variables will be provided by docker-compose.yml
 # Change permissions of the directory
 RUN chown -R www-data:www-data /var/www
+
+# Copy custom PHP-FPM configuration
+COPY php-fpm-fixed.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
