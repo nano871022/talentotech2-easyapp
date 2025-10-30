@@ -11,7 +11,7 @@ use PDOException;
  * AdminRepository
  * Provides methods to interact with the `admins` table.
  */
-class AdminRepository
+class MysqlAdminRepository implements AdminRepositoryInterface
 {
     private ?PDO $db;
 

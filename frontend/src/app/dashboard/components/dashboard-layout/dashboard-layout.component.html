@@ -105,8 +105,8 @@
           <tr *ngFor="let request of requests" class="border-b border-border-light dark:border-border-dark">
             <td class="p-3"><input type="checkbox" class="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-tag-bg-light dark:bg-tag-bg-dark"/></td>
             <td class="p-3">{{ request.correo }}</td>
-            <td class="p-3">{{ request.idiomas.join(', ') }}</td>
-            <td class="p-3">{{ request.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+            <td class="p-3">{{ request.idiomas?.join(', ') || 'N/A' }}</td>
+            <td class="p-3">{{ request.fecha_solicitud | date:'dd/MM/yyyy' }}</td>
             <td class="p-3">{{ request.fecha_contacto ? (request.fecha_contacto | date:'dd/MM/yyyy') : '.../.../...' }}</td>
             <td class="p-3 relative">
               <button class="text-text-light dark:text-text-dark">

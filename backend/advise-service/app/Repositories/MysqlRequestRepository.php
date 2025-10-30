@@ -11,7 +11,7 @@ use PDOException;
  * RequestRepository
  * Provides methods to interact with the `contactos` table (advisory requests).
  */
-class RequestRepository
+class MysqlRequestRepository implements RequestRepositoryInterface
 {
     private ?PDO $db;
 
@@ -33,14 +33,18 @@ class RequestRepository
             return null;
         }
 
-        // Simplified SQL statement focusing on core request data
-        $sql = "INSERT INTO contactos (nombre, correo, telefono) VALUES (:nombre, :correo, :telefono)";
+        // Include idiomas in the SQL statement
+        $sql = "INSERT INTO contactos (nombre, correo, telefono, idiomas) VALUES (:nombre, :correo, :telefono, :idiomas)";
 
         try {
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':nombre', $request->getNombre(), PDO::PARAM_STR);
             $stmt->bindValue(':correo', $request->getCorreo(), PDO::PARAM_STR);
             $stmt->bindValue(':telefono', $request->getTelefono(), PDO::PARAM_STR);
+            
+            // Convert array to JSON for storage
+            $idiomasJson = $request->getIdiomas() ? json_encode($request->getIdiomas()) : null;
+            $stmt->bindValue(':idiomas', $idiomasJson, PDO::PARAM_STR);
 
             if ($stmt->execute()) {
                 // Return the newly created request object, now with an ID
@@ -73,6 +77,9 @@ class RequestRepository
         try {
             $stmt = $this->db->query($sql);
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                // Convert JSON string back to array
+                $idiomas = $row['idiomas'] ? json_decode($row['idiomas'], true) : null;
+                
                 $requests[] = new Request(
                     $row['nombre'],
                     $row['correo'],
@@ -80,7 +87,7 @@ class RequestRepository
                     $row['id'],
                     $row['estado'],
                     $row['created_at'],
-                    $row['idiomas']
+                    $idiomas
                 );
             }
         } catch (PDOException $e) {
@@ -96,7 +103,7 @@ class RequestRepository
      * @param int $id The ID of the request.
      * @return Request|null
      */
-    public function findById(int $id): ?Request
+    public function findById(string $id): ?Request
     {
         if ($this->db === null) {
             return null;
@@ -110,6 +117,9 @@ class RequestRepository
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($row) {
+                // Convert JSON string back to array
+                $idiomas = $row['idiomas'] ? json_decode($row['idiomas'], true) : null;
+                
                  return new Request(
                     $row['nombre'],
                     $row['correo'],
@@ -117,7 +127,7 @@ class RequestRepository
                     $row['id'],
                     $row['estado'],
                     $row['created_at'],
-                    $row['idiomas']
+                    $idiomas
                 );
             }
         } catch (PDOException $e) {

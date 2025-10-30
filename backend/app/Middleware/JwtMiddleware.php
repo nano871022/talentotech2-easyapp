@@ -14,7 +14,7 @@ class JwtMiddleware
     {
         // This should be the same secret key used for encoding the token.
         // In a real application, store this securely (e.g., in an environment variable).
-        $this->jwtSecret = 'your-super-secret-key-for-jwt';
+        $this->jwtSecret = $_ENV['JWT_SECRET'] ?? 'your-super-secret-key-for-jwt';
     }
 
     /**
