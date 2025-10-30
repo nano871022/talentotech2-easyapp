@@ -14,7 +14,7 @@ RUN npm install
 COPY frontend/ .
 
 # Build the application
-RUN npm run build
+RUN npm run dev
 
 # Stage 2: Serve the application from Nginx
 FROM nginx:alpine

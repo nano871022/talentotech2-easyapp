@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } fr
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { RequestService, Advisory } from '../../../core/services/request.service';
 
 @Component({
   selector: 'app-register-page',
@@ -12,6 +13,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   imports: [CommonModule, ReactiveFormsModule, HttpClientModule]
 })
 export class RegisterPageComponent implements OnInit {
+   public advisory: Advisory | null = null;
   form!: FormGroup;
   cursos: string[] = ['Ingles', 'Franses', 'Chino', 'Portugues', 'Aleman'];
   isSubmitting = false;
@@ -19,7 +21,8 @@ export class RegisterPageComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private requestService: RequestService
   ) {}
 
   ngOnInit(): void {
@@ -46,7 +49,14 @@ export class RegisterPageComponent implements OnInit {
     }
     this.isSubmitting = true;
 
-    this.http.post('/v1/requests', this.form.value).subscribe({
+    this.advisory = {
+      nombre: this.form.value.name,
+      correo: this.form.value.email,
+      telefono: this.form.value.phone,
+      idiomas: this.form.value.cursos
+    };
+
+    this.requestService.createRequest(this.advisory).subscribe({
       next: (response) => {
         console.log('Request successful!', response);
         this.isSubmitting = false;
