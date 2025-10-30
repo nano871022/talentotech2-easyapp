@@ -1,0 +1,48 @@
+name: Auth Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/auth-service/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install Composer dependencies
+        run: |
+          cd backend/auth-service
+          composer install --no-dev --optimize-autoloader
+
+      - name: Run tests
+        run: |
+          cd backend/auth-service
+          # No tests yet, but this is where they would run
+          echo "No tests found"
+
+      - name: Create deployment package
+        run: |
+          cd backend/auth-service
+          zip -r deployment.zip . -x "*.git*"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to AWS Lambda
+        run: |
+          aws lambda update-function-code --function-name ${{ secrets.AUTH_LAMBDA_FUNCTION_NAME }} --zip-file fileb://backend/auth-service/deployment.zip

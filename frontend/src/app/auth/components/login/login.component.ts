@@ -37,7 +37,20 @@ export class LoginComponent implements OnInit {
     this.isSubmitting = true;
     this.loginError = null;
 
-    this.authService.login(this.loginForm.value).subscribe({
+    const credentials = { ...this.loginForm.value };
+    const sharedSecret = 'my-super-secret-key'; // As requested, a shared key.
+
+    // Encode the password using Base64 with the shared secret
+    try {
+      credentials.password = btoa(`${sharedSecret}:${credentials.password}`);
+    } catch (e) {
+      console.error('Failed to encode password:', e);
+      this.loginError = 'An unexpected error occurred during login.';
+      this.isSubmitting = false;
+      return;
+    }
+
+    this.authService.login(credentials).subscribe({
       next: (response) => {
         console.log('Login successful!', response);
         // In a real app, we would save the auth token here
