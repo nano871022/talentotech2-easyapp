@@ -96,7 +96,7 @@ class AuthController
     public function register(): void
     {
         if ($this->authService === null) {
-            $this->authService = new AuthService();
+            $this->authService = AuthService::create();
         }
 
         $json = file_get_contents('php://input');
