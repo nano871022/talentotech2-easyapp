@@ -38,7 +38,7 @@ jobs:
           ./node_modules/.bin/ng build --configuration production
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/dist/angular-app
