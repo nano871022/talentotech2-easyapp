@@ -9,14 +9,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
- # test:
- #   uses: ./.github/workflows/reusable-test.yml
- #   with:
- #     service_name: frontend
+  #test:
+    #uses: ./.github/workflows/reusable-test.yml
+    #with:
+    #  service_name: frontend
 
   build:
-    needs: test
+    #needs: test
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
