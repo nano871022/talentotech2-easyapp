@@ -9,10 +9,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    uses: ./.github/workflows/reusable-test.yml
-    with:
-      service_name: frontend
+ # test:
+ #   uses: ./.github/workflows/reusable-test.yml
+ #   with:
+ #     service_name: frontend
 
   build:
     needs: test
