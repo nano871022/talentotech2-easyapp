@@ -50,6 +50,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment: PROD
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
