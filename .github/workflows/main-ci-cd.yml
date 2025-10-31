@@ -1,0 +1,38 @@
+name: Main CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auth:
+    uses: ./.github/workflows/auth-service-ci-cd.yml
+    secrets: inherit
+
+  frontend:
+    uses: ./.github/workflows/frontend-ci-cd.yml
+    secrets: inherit
+
+  advise:
+    uses: ./.github/workflows/advise-service-ci-cd.yml
+    secrets: inherit
+
+  create-tag:
+    needs: [auth, frontend, advise]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create and Push Git Tag
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          TAG_NAME=$(date +'%d%m%Y-%H%M%S')
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
