@@ -33,7 +33,7 @@ jobs:
 
       - name: Copy Core and Middleware directories
         run: |
-          cp -r backend/app/Core backend/auth-service/app/Core
+          cp -r backend/app/core backend/auth-service/app/Core
           cp -r backend/app/Middleware backend/auth-service/app/Middleware
 
       - name: Create deployment package
