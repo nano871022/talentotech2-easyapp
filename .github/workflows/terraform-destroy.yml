@@ -6,6 +6,7 @@ on:
 jobs:
   terraform:
     name: 'Terraform Destroy'
+    environment: PROD
     runs-on: ubuntu-latest
 
     steps:
