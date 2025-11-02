@@ -3,18 +3,27 @@
 ## ✅ Cambios realizados
 
 ### 1. **angular.json**
-- ✅ Agregado `"outputPath": "dist"` en la configuración de build
-- ✅ Esto hace que los archivos se generen directamente en `frontend/dist/` en lugar de `frontend/dist/angular-app/browser/`
+- ✅ Cambiado de `@angular/build:application` a `@angular-devkit/build-angular:browser`
+- ✅ Configurado `"outputPath": "dist"` para generar archivos en la raíz
+- ✅ Eliminada la carpeta `browser/` intermedia
+- ✅ Configurados assets desde carpeta `public/`
 
-### 2. **Estructura de salida**
+### 2. **Builder usado**
+```json
+"builder": "@angular-devkit/build-angular:browser"
+```
+Este builder genera los archivos directamente en la carpeta de salida sin crear subcarpetas adicionales.
+
+### 3. **Estructura de salida**
 ```
 frontend/
 ├── dist/
 │   ├── index.html          ← Archivo principal
-│   ├── main-[hash].js      ← JavaScript principal
-│   ├── styles-[hash].css   ← Estilos CSS
-│   ├── polyfills-[hash].js ← Polyfills
-│   └── assets/             ← Recursos estáticos
+│   ├── main.[hash].js      ← JavaScript principal
+│   ├── styles.[hash].css   ← Estilos CSS
+│   ├── polyfills.[hash].js ← Polyfills
+│   ├── favicon.ico         ← Favicon desde public/
+│   └── otros archivos...   ← Recursos estáticos
 └── src/
 ```
 
