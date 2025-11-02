@@ -22,9 +22,42 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+
+    - name: Install jq
+      run: sudo apt-get update && sudo apt-get install -y jq
 
     - name: Terraform Init
       run: terraform init
+      working-directory: ./terraform
+
+    - name: Empty S3 Bucket Before Destroy
+      run: |
+        # Obtener el nombre del bucket desde Terraform
+        BUCKET_NAME=$(terraform output -raw bucket_name 2>/dev/null || echo "repository-terraform-states-prod")
+        
+        # Verificar si el bucket existe
+        if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+          echo "Vaciando el bucket: $BUCKET_NAME"
+          
+          # Eliminar todas las versiones de objetos (incluyendo delete markers)
+          aws s3api list-object-versions --bucket "$BUCKET_NAME" --query 'Versions[].{Key:Key,VersionId:VersionId}' --output json | \
+          jq -r '.[] | "--key \(.Key) --version-id \(.VersionId)"' | \
+          xargs -I {} aws s3api delete-object --bucket "$BUCKET_NAME" {} || true
+          
+          # Eliminar delete markers
+          aws s3api list-object-versions --bucket "$BUCKET_NAME" --query 'DeleteMarkers[].{Key:Key,VersionId:VersionId}' --output json | \
+          jq -r '.[] | "--key \(.Key) --version-id \(.VersionId)"' | \
+          xargs -I {} aws s3api delete-object --bucket "$BUCKET_NAME" {} || true
+          
+          # Eliminar objetos restantes (por si acaso)
+          aws s3 rm s3://"$BUCKET_NAME" --recursive || true
+          
+          echo "Bucket vaciado completamente"
+        else
+          echo "El bucket $BUCKET_NAME no existe, continuando con destroy..."
+        fi
       working-directory: ./terraform
 
     - name: Terraform Destroy
