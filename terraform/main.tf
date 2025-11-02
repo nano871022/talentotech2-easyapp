@@ -39,11 +39,20 @@ resource "aws_s3_bucket_website_configuration" "frontend_static_website" {
   bucket = aws_s3_bucket.frontend_static.id
 
   index_document {
-    suffix = "index.html"
+    suffix = "browser/index.html"
   }
 
   error_document {
-    key = "error.html"
+    key = "browser/index.html"  # Para SPAs como Angular, redirigir errores a index.html
+  }
+
+  routing_rule {
+    condition {
+      http_error_code_returned_equals = "404"
+    }
+    redirect {
+      replace_key_with = "browser/index.html"
+    }
   }
 }
 
