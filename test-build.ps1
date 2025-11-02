@@ -17,6 +17,31 @@ if (Test-Path "dist") {
 Write-Host "🔨 Construyendo aplicación..." -ForegroundColor Yellow
 & .\node_modules\.bin\ng build --configuration production
 
+Write-Host "📁 Verificando estructura del build..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "=== Estructura inicial después del build ===" -ForegroundColor Cyan
+Get-ChildItem -Path "dist" -Recurse | Select-Object -First 10 | Format-Table
+
+# Si existe la carpeta browser, mover todo a la raíz
+if (Test-Path "dist\browser") {
+    Write-Host "📁 Carpeta browser encontrada, moviendo archivos a la raíz..." -ForegroundColor Yellow
+    
+    # Crear directorio temporal
+    New-Item -ItemType Directory -Path "dist_temp" -Force | Out-Null
+    
+    # Mover contenido de browser a temporal
+    Move-Item -Path "dist\browser\*" -Destination "dist_temp\" -Force
+    
+    # Limpiar dist y mover archivos de vuelta
+    Remove-Item -Path "dist\*" -Recurse -Force
+    Move-Item -Path "dist_temp\*" -Destination "dist\" -Force
+    Remove-Item -Path "dist_temp" -Force
+    
+    Write-Host "✅ Archivos movidos a la raíz" -ForegroundColor Green
+} else {
+    Write-Host "✅ Los archivos ya están en la raíz" -ForegroundColor Green
+}
+
 Write-Host "🔍 Verificando resultado..." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "=== Contenido de dist/ ===" -ForegroundColor Cyan

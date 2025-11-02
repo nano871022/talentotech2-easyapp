@@ -3,16 +3,22 @@
 ## ✅ Cambios realizados
 
 ### 1. **angular.json**
-- ✅ Cambiado de `@angular/build:application` a `@angular-devkit/build-angular:browser`
-- ✅ Configurado `"outputPath": "dist"` para generar archivos en la raíz
-- ✅ Eliminada la carpeta `browser/` intermedia
+- ✅ Usando `@angular/build:application` (builder moderno de Angular 17+)
+- ✅ Configurado `"outputPath": "dist"` para generar archivos
+- ✅ **Post-procesamiento** para mover archivos de `browser/` a la raíz
 - ✅ Configurados assets desde carpeta `public/`
 
 ### 2. **Builder usado**
 ```json
-"builder": "@angular-devkit/build-angular:browser"
+"builder": "@angular/build:application"
 ```
-Este builder genera los archivos directamente en la carpeta de salida sin crear subcarpetas adicionales.
+Este es el builder moderno de Angular 17+. Genera archivos en `dist/browser/` por defecto, pero usamos post-procesamiento para moverlos a la raíz.
+
+### 3. **Proceso de build**
+1. Angular genera archivos en `dist/browser/`
+2. Script detecta la carpeta `browser/`
+3. Mueve todos los archivos a `dist/` (raíz)
+4. Elimina la carpeta `browser/` vacía
 
 ### 3. **Estructura de salida**
 ```
