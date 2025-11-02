@@ -46,7 +46,7 @@ resource "aws_s3_bucket_website_configuration" "frontend_static_website" {
   }
 
   error_document {
-    key = "index.html"  # Para SPAs como Angular, redirigir errores a index.html
+    key = "index.html" # Para SPAs como Angular, redirigir errores a index.html
   }
 
   routing_rule {
