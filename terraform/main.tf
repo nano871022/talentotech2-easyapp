@@ -26,7 +26,7 @@ provider "aws" {
 # Bucket S3 para hosting estático del frontend Angular
 resource "aws_s3_bucket" "frontend_static" {
   bucket = "repository-terraform-states-prod"
-  
+
   # Permite eliminar el bucket aunque tenga contenido
   force_destroy = true
 
