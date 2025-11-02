@@ -34,29 +34,76 @@ jobs:
 
     - name: Empty S3 Bucket Before Destroy
       run: |
-        # Obtener el nombre del bucket desde Terraform
-        BUCKET_NAME=$(terraform output -raw bucket_name 2>/dev/null || echo "repository-terraform-states-prod")
+        # Definir el nombre del bucket directamente
+        BUCKET_NAME="repository-terraform-states-prod"
+        
+        echo "Verificando bucket: $BUCKET_NAME"
         
         # Verificar si el bucket existe
         if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-          echo "Vaciando el bucket: $BUCKET_NAME"
+          echo "✅ Bucket encontrado: $BUCKET_NAME"
+          echo "🗑️ Vaciando el bucket..."
           
-          # Eliminar todas las versiones de objetos (incluyendo delete markers)
-          aws s3api list-object-versions --bucket "$BUCKET_NAME" --query 'Versions[].{Key:Key,VersionId:VersionId}' --output json | \
-          jq -r '.[] | "--key \(.Key) --version-id \(.VersionId)"' | \
-          xargs -I {} aws s3api delete-object --bucket "$BUCKET_NAME" {} || true
+          # Verificar si el bucket tiene versionado habilitado
+          VERSIONING=$(aws s3api get-bucket-versioning --bucket "$BUCKET_NAME" --query 'Status' --output text 2>/dev/null || echo "None")
+          echo "Estado de versionado: $VERSIONING"
           
-          # Eliminar delete markers
-          aws s3api list-object-versions --bucket "$BUCKET_NAME" --query 'DeleteMarkers[].{Key:Key,VersionId:VersionId}' --output json | \
-          jq -r '.[] | "--key \(.Key) --version-id \(.VersionId)"' | \
-          xargs -I {} aws s3api delete-object --bucket "$BUCKET_NAME" {} || true
+          if [ "$VERSIONING" = "Enabled" ]; then
+            echo "Eliminando versiones de objetos..."
+            
+            # Eliminar todas las versiones de objetos
+            aws s3api list-object-versions --bucket "$BUCKET_NAME" --output json | \
+            jq -r '.Versions[]? | "--key \"" + .Key + "\" --version-id " + .VersionId' | \
+            while read -r line; do
+              if [ -n "$line" ]; then
+                aws s3api delete-object --bucket "$BUCKET_NAME" $line || true
+              fi
+            done
+            
+            # Eliminar delete markers
+            aws s3api list-object-versions --bucket "$BUCKET_NAME" --output json | \
+            jq -r '.DeleteMarkers[]? | "--key \"" + .Key + "\" --version-id " + .VersionId' | \
+            while read -r line; do
+              if [ -n "$line" ]; then
+                aws s3api delete-object --bucket "$BUCKET_NAME" $line || true
+              fi
+            done
+          fi
           
-          # Eliminar objetos restantes (por si acaso)
+          # Eliminar objetos actuales (funciona con o sin versionado)
+          echo "Eliminando objetos actuales..."
           aws s3 rm s3://"$BUCKET_NAME" --recursive || true
           
-          echo "Bucket vaciado completamente"
+          # Verificar que el bucket está vacío
+          OBJECT_COUNT=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'KeyCount' --output text 2>/dev/null || echo "0")
+          echo "Objetos restantes: $OBJECT_COUNT"
+          
+          if [ "$OBJECT_COUNT" = "0" ]; then
+            echo "✅ Bucket vaciado completamente"
+          else
+            echo "⚠️ Aún quedan $OBJECT_COUNT objetos en el bucket"
+          fi
+          
         else
-          echo "El bucket $BUCKET_NAME no existe, continuando con destroy..."
+          echo "ℹ️ El bucket $BUCKET_NAME no existe, continuando..."
+        fi
+      working-directory: ./terraform
+
+    - name: Force Delete S3 Bucket (if Terraform fails)
+      run: |
+        BUCKET_NAME="repository-terraform-states-prod"
+        
+        # Intentar eliminar el bucket directamente si aún existe después del destroy
+        if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+          echo "🔨 Forzando eliminación del bucket..."
+          aws s3 rb s3://"$BUCKET_NAME" --force || true
+          
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "❌ No se pudo eliminar el bucket automáticamente"
+            echo "Puede requerir eliminación manual desde la consola de AWS"
+          else
+            echo "✅ Bucket eliminado exitosamente"
+          fi
         fi
       working-directory: ./terraform
 
