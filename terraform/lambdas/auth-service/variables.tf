@@ -19,11 +19,6 @@ variable "jwt_secret" {
   sensitive   = true
 }
 
-variable "region" {
-  description = "The AWS region"
-  type        = string
-}
-
 variable "account_id" {
   description = "The AWS account ID"
   type        = string
@@ -33,12 +28,6 @@ variable "bref_php_layer" {
   description = "The ARN of the Bref PHP layer"
   type        = string
   default     = "arn:aws:lambda:us-east-1:534081306603:layer:php-81-fpm:59"
-}
-
-variable "region" {
-  description = "The AWS region"
-  type        = string
-  default     = "us-east-1"
 }
 
 variable "aws_secret_access_key_dynamo_user" {
