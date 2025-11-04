@@ -25,7 +25,6 @@ resource "aws_lambda_function" "auth_service" {
       DB_DRIVER                         = "dynamodb"
       AWS_SECRET_ACCESS_KEY_DYNAMO_USER = var.aws_secret_access_key_dynamo_user
       AWS_ACCESS_KEY_DYNAMO_USER        = var.aws_access_key_dynamo_user
-      AWS_REGION                        = var.region
     }
   }
 
