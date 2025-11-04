@@ -72,10 +72,7 @@ resource "aws_iam_role_policy" "dynamodb" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ]
-        Resource = [
-          var.dynamodb_admins_table_arn,
-          "arn:aws:dynamodb:${var.region}:${var.account_id}:table/${var.dynamodb_admins_table}/index/*"
-        ]
+        Resource = ["*"]
       }
     ]
   })
