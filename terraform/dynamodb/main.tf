@@ -25,7 +25,8 @@ resource "aws_dynamodb_table" "admins" {
 resource "aws_dynamodb_table" "requests" {
   name         = "${var.project_name}-requests"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "id"
+  hash_key     = "email"
+  range_key    = "created_at"
 
   attribute {
     name = "id"
