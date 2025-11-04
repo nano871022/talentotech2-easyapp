@@ -21,7 +21,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                 'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'],
             ],
         ]);
-        $this->tableName = 'requests';
+        $this->tableName = 'Language-Advisory-Platform-requests';
     }
 
     public function save(Request $request): ?Request
