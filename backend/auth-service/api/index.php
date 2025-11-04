@@ -48,5 +48,5 @@ if ($handler) {
     }
 } else {
     http_response_code(404);
-    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.', 'Method'=>$method,'Path'=>$path);
+    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.', 'Method'=>$method,'Path'=>$path]);
 }
