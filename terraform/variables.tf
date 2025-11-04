@@ -30,7 +30,7 @@ variable "account_id" {
 variable "bref_php_layer" {
   description = "The ARN of the Bref PHP layer"
   type        = string
-  default     = "arn:aws:lambda:us-east-1:209497400698:layer:php-82:50"
+  default     = "arn:aws:lambda:us-east-1:119994407100:layer:php-82:50"
 }
 
 variable "environment" {
