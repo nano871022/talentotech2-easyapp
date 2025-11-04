@@ -37,12 +37,6 @@ variable "sns_topic_arn" {
   default     = ""
 }
 
-variable "region" {
-  description = "The AWS region"
-  type        = string
-  default     = "us-east-1"
-}
-
 variable "aws_secret_access_key_dynamo_user" {
   description = "The AWS secret access key for the DynamoDB user"
   type        = string
