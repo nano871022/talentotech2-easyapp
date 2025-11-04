@@ -42,3 +42,14 @@ variable "notification_email" {
   description = "Email for SNS notifications (optional)"
   type        = string
 }
+
+variable "aws_access_key_dynamo_user" {
+  description = "Key user for bynamo"
+  type = string
+}
+
+variable "aws_secret_access_key_dynamo_user"{
+  description = "Sectret user for bynamo"
+  type = string
+
+}
