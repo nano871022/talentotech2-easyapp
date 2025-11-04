@@ -37,13 +37,20 @@ variable "sns_topic_arn" {
   default     = ""
 }
 
-variable "db_driver" {
-  description = "The database driver to be used by the advise service"
-  type        = string
-}
-
 variable "region" {
   description = "The AWS region"
   type        = string
   default     = "us-east-1"
-}  
+}
+
+variable "aws_secret_access_key_dynamo_user" {
+  description = "The AWS secret access key for the DynamoDB user"
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_access_key_dynamo_user" {
+  description = "The AWS access key for the DynamoDB user"
+  type        = string
+  sensitive   = true
+}
