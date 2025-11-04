@@ -17,8 +17,8 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
             'region'  => $_ENV['AWS_REGION'],
             'version' => 'latest',
             'credentials' => [
-                'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
-                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'],
+                'key'    => $_ENV['AWS_ACCESS_KEY_DYNAMO_USER'],
+                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_DYNAMO_USER'],
             ],
         ]);
         $this->tableName = 'Language-Advisory-Platform-requests';

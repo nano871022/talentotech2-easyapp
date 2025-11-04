@@ -21,4 +21,4 @@ resource "aws_lambda_permission" "allow_sns" {
   function_name = aws_lambda_function.shared.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.main.arn
-}  
+}
