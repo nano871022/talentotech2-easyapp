@@ -50,18 +50,18 @@ jobs:
 
     - name: Terraform Plan
       env:
-        TF_VAR_aws_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
-        TF_VAR_aws_secret_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
-        TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
-        TF_VAR_region: ${{ secrets.AWS_REGION }}
-      run: terraform plan -input=false
+       TF_VAR_aws_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_aws_region: ${{ secrets.TF_VAR_AWS_REGION }}
+       TF_VAR_aws_secret_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
+      run: terraform plan
       working-directory: ./terraform
 
     - name: Terraform Apply
       env:
-        TF_VAR_aws_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
-        TF_VAR_aws_secret_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
-        TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
-        TF_VAR_region: ${{ secrets.AWS_REGION }}
-      run: terraform apply -input=false -auto-approve
+       TF_VAR_aws_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_aws_region: ${{ secrets.TF_VAR_AWS_REGION }}
+       TF_VAR_aws_secret_access_key_dynamo_user: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_jwt_secret: ${{ secrets.TF_VAR_JWT_SECRET }}
+      run: terraform apply -auto-approve
       working-directory: ./terraform
