@@ -32,8 +32,23 @@ class AuthService
 
     public function authenticate(string $username, string $password): ?string
     {
-        $admin = $this->adminRepository->findByUsername($username);
+        // For DynamoDB, retrieve by email (username) and password directly (PK+SK)
+        if ($this->adminRepository instanceof DynamoDbAdminRepository) {
+            $admin = $this->adminRepository->findByEmailAndPassword($username, $password);
+            if ($admin) {
+                $secretKey = $_ENV['JWT_SECRET'] ?? 'your-super-secret-key-for-jwt';
+                $payload = [
+                    'iat' => time(),
+                    'exp' => time() + 3600,
+                    'sub' => $admin->getId(),
+                ];
+                return JWT::encode($payload, $secretKey, 'HS256');
+            }
+            return null;
+        }
 
+        // Default (e.g., MySQL): fetch by username and verify hashed password
+        $admin = $this->adminRepository->findByUsername($username);
         if ($admin && password_verify($password, $admin->getPasswordHash())) {
             $secretKey = $_ENV['JWT_SECRET'] ?? 'your-super-secret-key-for-jwt';
             $payload = [
@@ -41,7 +56,6 @@ class AuthService
                 'exp' => time() + 3600,
                 'sub' => $admin->getId(),
             ];
-
             return JWT::encode($payload, $secretKey, 'HS256');
         }
 
@@ -50,6 +64,11 @@ class AuthService
 
     public function register(string $username, string $password, string $name): ?Admin
     {
+        if ($this->adminRepository instanceof DynamoDbAdminRepository) {
+            // Store the password as SK directly (per requirement)
+            return $this->adminRepository->create($username, $password, $name);
+        }
+
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         return $this->adminRepository->create($username, $passwordHash, $name);
     }

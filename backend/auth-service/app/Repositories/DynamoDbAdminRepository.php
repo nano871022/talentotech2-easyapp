@@ -26,25 +26,32 @@ class DynamoDbAdminRepository implements AdminRepositoryInterface
 
     public function findByUsername(string $username): ?Admin
     {
+        // Not supported with the current key schema (email + password)
+        return null;
+    }
+
+    public function findByEmailAndPassword(string $email, string $password): ?Admin
+    {
         try {
             $result = $this->dynamoDb->getItem([
                 'TableName' => $this->tableName,
                 'Key' => [
-                    'username' => ['S' => $username],
+                    'email'    => ['S' => $email],
+                    'password' => ['S' => $password],
                 ],
             ]);
 
             if (isset($result['Item'])) {
                 $item = $result['Item'];
                 return new Admin(
-                    $item['username']['S'],
-                    $item['password_hash']['S'],
-                    $item['name']['S'],
-                    $item['id']['S']
+                    $item['email']['S'],
+                    $item['password']['S'],
+                    $item['name']['S'] ?? null,
+                    null
                 );
             }
         } catch (AwsException $e) {
-            error_log('DynamoDbAdminRepository Error - findByUsername: ' . $e->getMessage());
+            error_log('DynamoDbAdminRepository Error - findByEmailAndPassword: ' . $e->getMessage());
         }
 
         return null;
@@ -52,19 +59,19 @@ class DynamoDbAdminRepository implements AdminRepositoryInterface
 
     public function create(string $username, string $passwordHash, string $name): ?Admin
     {
-        $id = $this->generateUuidV4();
+        // For DynamoDB we store email as PK and password as SK (plain, per requirement)
         try {
             $this->dynamoDb->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
-                    'id'            => ['S' => $id],
-                    'username'      => ['S' => $username],
-                    'password_hash' => ['S' => $passwordHash],
-                    'name'          => ['S' => $name],
+                    'email'    => ['S' => $username],
+                    'password' => ['S' => $passwordHash],
+                    'name'     => ['S' => $name],
                 ],
+                'ConditionExpression' => 'attribute_not_exists(email) AND attribute_not_exists(password)'
             ]);
 
-            return new Admin($username, $passwordHash, $name, $id);
+            return new Admin($username, $passwordHash, $name, null);
         } catch (AwsException $e) {
             error_log('DynamoDbAdminRepository Error - create: ' . $e->getMessage());
         }

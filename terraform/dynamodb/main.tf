@@ -2,24 +2,17 @@
 resource "aws_dynamodb_table" "admins" {
   name         = "${var.project_name}-admins"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "id"
-
-  attribute {
-    name = "id"
-    type = "S"
-  }
+  hash_key     = "email"
+  range_key    = "password"
 
   attribute {
     name = "email"
     type = "S"
   }
 
-  global_secondary_index {
-    name               = "EmailIndex"
-    hash_key           = "email"
-    projection_type    = "ALL"
-    read_capacity      = 5
-    write_capacity     = 5
+  attribute {
+    name = "password"
+    type = "S"
   }
 
   tags = {
@@ -50,19 +43,19 @@ resource "aws_dynamodb_table" "requests" {
   }
 
   global_secondary_index {
-    name               = "EmailIndex"
-    hash_key           = "email"
-    projection_type    = "ALL"
-    read_capacity      = 5
-    write_capacity     = 5
+    name            = "EmailIndex"
+    hash_key        = "email"
+    projection_type = "ALL"
+    read_capacity   = 5
+    write_capacity  = 5
   }
 
   global_secondary_index {
-    name               = "CreatedAtIndex"
-    hash_key           = "created_at"
-    projection_type    = "ALL"
-    read_capacity      = 5
-    write_capacity     = 5
+    name            = "CreatedAtIndex"
+    hash_key        = "created_at"
+    projection_type = "ALL"
+    read_capacity   = 5
+    write_capacity  = 5
   }
 
   tags = {
