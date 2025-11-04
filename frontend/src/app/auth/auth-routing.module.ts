@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthLayoutComponent } from './components/auth-layout/auth-layout.component';
-import { LoginComponent } from './components/login/login.component'; // Import the LoginComponent
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 
 const routes: Routes = [
   {
     path: '',
     component: AuthLayoutComponent,
-    // Define child routes for login
     children: [
       { path: 'login', component: LoginComponent },
-      // Redirect /auth to /auth/login by default
+      { path: 'register', component: RegisterComponent },
       { path: '', redirectTo: 'login', pathMatch: 'full' }
     ]
   }
