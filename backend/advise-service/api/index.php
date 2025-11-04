@@ -7,8 +7,16 @@ error_log('HTTP_HOST: ' . ($_SERVER['HTTP_HOST'] ?? 'NOT_SET'));
 error_log('REMOTE_ADDR: ' . ($_SERVER['REMOTE_ADDR'] ?? 'NOT_SET'));
 error_log('User-Agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'NOT_SET'));
 
-// CORS headers are now handled by nginx - no need to set them here
-// Handle preflight requests are also handled by nginx
+// Set CORS headers
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 // Set content type to JSON
 header("Content-Type: application/json");
