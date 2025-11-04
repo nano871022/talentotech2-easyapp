@@ -41,7 +41,7 @@ resource "aws_lambda_function" "advise_service" {
   }
 
   # Using Bref PHP 8.1 FPM layer for API Gateway requests
-  layers = ["arn:aws:lambda:${var.region}:534081306603:layer:php-81-fpm:59"]
+  layers = [var.bref_php_layer]
 
   depends_on = [data.archive_file.advise_service]
 }

@@ -13,7 +13,7 @@ variable "jwt_secret" {
   description = "The JWT secret for authentication"
   type        = string
   sensitive   = true
-  default     =  "jwt-secret-no-inject"
+  default     = "jwt-secret-no-inject"
 }
 
 variable "region" {
@@ -28,14 +28,14 @@ variable "account_id" {
 }
 
 variable "bref_php_layer" {
-  description = "The ARN of the Bref PHP layer"
+  description = "The ARN of the Bref PHP 8.1 FPM layer"
   type        = string
-  default     = "arn:aws:lambda:us-east-1:119994407100:layer:php-82:50"
+  default     = "arn:aws:lambda:us-east-1:534081306603:layer:php-81-fpm:59"
 }
 
 variable "environment" {
   description = "Ambiente de despliegue"
-  type = string
+  type        = string
 }
 
 variable "notification_email" {
