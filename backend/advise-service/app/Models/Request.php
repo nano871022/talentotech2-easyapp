@@ -11,17 +11,23 @@ class Request
     public function __construct(
         private string $nombre,
         private string $correo,
+        private string $email,
         private ?string $telefono,
         private ?int $id = null,
         private string $estado = 'nuevo',
         private ?string $created_at = null,
         private ?array $idiomas = null
-    ) {}
+    ) {
+    }
 
     // --- Getters ---
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getEmail(){
+        return $this->email;
     }
 
     public function getNombre(): string
