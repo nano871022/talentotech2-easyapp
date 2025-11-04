@@ -37,6 +37,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_TERRAFORM_SECRET_ACCESS_KEY }}
         aws-region:  ${{ secrets.AWS_REGION }}
 
+    - name: Set AWS credentials for DynamoDB
+      run: |
+        export TF_VAR_aws_access_key_dynamo_user=${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
+        export TF_VAR_aws_secret_access_key_dynamo_user=${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
