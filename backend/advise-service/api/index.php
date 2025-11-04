@@ -13,8 +13,8 @@ error_log('User-Agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'NOT_SET'));
 // Set content type to JSON
 header("Content-Type: application/json");
 
-// Include Composer's autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+// Include bootstrap file
+require_once __DIR__ . '/bootstrap.php';
 
 use App\Controllers\RequestController;
 use App\Middleware\JwtMiddleware;

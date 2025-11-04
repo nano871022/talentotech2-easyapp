@@ -5,8 +5,8 @@
 // Set content type to JSON
 header("Content-Type: application/json");
 
-// Include Composer's autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+// Include bootstrap file
+require_once __DIR__ . '/bootstrap.php';
 
 use App\Controllers\AuthController;
 
