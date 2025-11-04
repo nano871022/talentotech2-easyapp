@@ -11,20 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  auth:
-    uses: ./.github/workflows/auth-service-ci-cd.yml
-    secrets: inherit
 
   frontend:
     uses: ./.github/workflows/frontend-ci-cd.yml
     secrets: inherit
 
-  advise:
-    uses: ./.github/workflows/advise-service-ci-cd.yml
-    secrets: inherit
-
   create-tag:
-    needs: [auth, frontend, advise]
+    needs: [frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
