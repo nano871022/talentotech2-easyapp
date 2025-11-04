@@ -33,13 +33,11 @@ variable "bref_php_layer" {
 variable "aws_secret_access_key_dynamo_user" {
   description = "The AWS secret access key for the DynamoDB user"
   type        = string
-  sensitive   = true
 }
 
 variable "aws_access_key_dynamo_user" {
   description = "The AWS access key for the DynamoDB user"
   type        = string
-  sensitive   = true
 }
 
 variable "region" {
