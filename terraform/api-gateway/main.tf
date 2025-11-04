@@ -11,7 +11,7 @@ resource "aws_api_gateway_rest_api" "main" {
           x-amazon-apigateway-integration = {
             httpMethod           = "POST"
             type                 = "AWS_PROXY"
-            uri                  = module.lambdas.auth-service.invoke_arn
+            uri                  = module.lambda_auth.invoke_arn
           }
         }
       }
@@ -20,7 +20,7 @@ resource "aws_api_gateway_rest_api" "main" {
           x-amazon-apigateway-integration = {
             httpMethod           = "POST"
             type                 = "AWS_PROXY"
-            uri                  = module.lambdas.advise-service.invoke_arn
+            uri                  = module.lambda_advise.invoke_arn
           }
         }
       }
