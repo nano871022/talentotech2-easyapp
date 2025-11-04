@@ -2,8 +2,40 @@ resource "aws_s3_bucket" "frontend" {
   bucket = "${lower(var.project_name)}-frontend"
 }
 
-resource "aws_s3_bucket_website_configuration" "frontend" {
+# Bucket S3 para hosting estático del frontend Angular
+resource "aws_s3_bucket" "frontend_static" {
   bucket = aws_s3_bucket.frontend.id
+
+  # Permite eliminar el bucket aunque tenga contenido
+  force_destroy = true
+
+  tags = {
+    Name        = "Frontend Static Hosting"
+    Environment = "prod"
+    Purpose     = "static-website"
+  }
+}
+
+# Configuración para hosting de sitio web estático
+resource "aws_s3_bucket_website_configuration" "frontend" {
+  bucket = aws_s3_bucket.frontend_static.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html" # Para SPAs como Angular, redirigir errores a index.html
+  }
+
+  routing_rule {
+    condition {
+      http_error_code_returned_equals = "404"
+    }
+    redirect {
+      replace_key_with = "index.html"
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend" {
@@ -13,11 +45,6 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   block_public_policy     = false
   ignore_public_acls      = false
   restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_policy" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-  policy = data.aws_iam_policy_document.frontend_bucket_policy.json
 }
 
 data "aws_iam_policy_document" "frontend_bucket_policy" {
@@ -39,6 +66,15 @@ data "aws_iam_policy_document" "frontend_bucket_policy" {
     }
   }
 }
+
+# Política para permitir acceso público de lectura
+resource "aws_s3_bucket_policy" "frontend_static_policy" {
+  bucket = aws_s3_bucket.frontend_static.id
+  policy = data.aws_iam_policy_document.frontend_bucket_policy.json
+
+  depends_on = [aws_s3_bucket_public_access_block.frontend]
+}
+
 resource "aws_cloudfront_distribution" "frontend" {
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
