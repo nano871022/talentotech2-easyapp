@@ -48,16 +48,16 @@ error_log('Clean path: ' . $cleanPath);
 
 $routes = [
     'POST' => [
-        '/api/v1/requests' => [RequestController::class, 'createRequest'],
-        '/api/v1/requests/correct-data' => [RequestController::class, 'correctData'],
+        '/dev/api/requests' => [RequestController::class, 'createRequest'],
+        '/dev/api/requests/correct-data' => [RequestController::class, 'correctData'],
     ],
     'GET' => [
-        '/api/v1/requests' => [RequestController::class, 'getRequests'],
-        '~^/api/v1/requests/\d+$~' => [RequestController::class, 'getRequest'],
-        '~^/api/v1/requests/summary/\d+$~' => [RequestController::class, 'getRequestSummary'],
+        '/dev/api/requests' => [RequestController::class, 'getRequests'],
+        '~^/dev/api/requests/\d+$~' => [RequestController::class, 'getRequest'],
+        '~^/dev/api/requests/summary/\d+$~' => [RequestController::class, 'getRequestSummary'],
     ],
     'PUT' => [
-        '~^/api/v1/requests/\d+/status$~' => [RequestController::class, 'updateStatus'],
+        '~^/dev/api/requests/\d+/status$~' => [RequestController::class, 'updateStatus'],
     ],
 ];
 
@@ -95,7 +95,7 @@ if ($handler) {
 
     // Define routes that don't require authentication
     $publicRoutes = [
-        'POST' => ['/api/v1/requests']
+        'POST' => ['/dev/api/requests']
     ];
     
     // Check if current route requires authentication
