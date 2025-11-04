@@ -13,6 +13,23 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, pdo_mysql
+        tools: composer
+
+    - name: Prepare Auth Service Lambda package
+      run: |
+        cd backend/auth-service
+        bash prepare-lambda.sh
+
+    - name: Prepare Advise Service Lambda package
+      run: |
+        cd backend/advise-service
+        bash prepare-lambda.sh
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
