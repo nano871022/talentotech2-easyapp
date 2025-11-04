@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "frontend" {
 
 # Configuración para hosting de sitio web estático
 resource "aws_s3_bucket_website_configuration" "frontend" {
-  bucket = aws_s3_bucket.frontend_static.id
+  bucket = aws_s3_bucket.frontend.id
 
   index_document {
     suffix = "index.html"
@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "frontend_bucket_policy" {
 
 # Política para permitir acceso público de lectura
 resource "aws_s3_bucket_policy" "frontend_static_policy" {
-  bucket = aws_s3_bucket.frontend_static.id
+  bucket = aws_s3_bucket.frontend.id
   policy = data.aws_iam_policy_document.frontend_bucket_policy.json
 
   depends_on = [aws_s3_bucket_public_access_block.frontend]
