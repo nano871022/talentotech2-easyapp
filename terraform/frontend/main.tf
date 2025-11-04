@@ -43,30 +43,21 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   restrict_public_buckets = false
 }
 
-data "aws_iam_policy_document" "frontend_bucket_policy" {
-  statement {
-    sid       = "AllowCloudFrontServicePrincipal"
-    effect    = "Allow"
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.frontend.arn}/*"]
-
-    principals {
-      type        = "service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = ["${aws_cloudfront_distribution.frontend.arn}"]
-    }
-  }
-}
-
 # Política para permitir acceso público de lectura
 resource "aws_s3_bucket_policy" "frontend_static_policy" {
   bucket = aws_s3_bucket.frontend.id
-  policy = data.aws_iam_policy_document.frontend_bucket_policy.json
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.frontend_static.arn}/*"
+      }
+    ]
+  })
 
   depends_on = [aws_s3_bucket_public_access_block.frontend]
 }
