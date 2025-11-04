@@ -35,7 +35,7 @@ jobs:
     - name: Empty S3 Bucket Before Destroy
       run: |
         # Definir el nombre del bucket directamente
-        BUCKET_NAME="my-terraform-state-easyapp-talentotech"
+        BUCKET_NAME="language-advisory-platform-frontend"
         
         echo "Verificando bucket: $BUCKET_NAME"
         
