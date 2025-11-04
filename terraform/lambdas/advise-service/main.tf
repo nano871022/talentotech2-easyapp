@@ -1,6 +1,6 @@
 data "archive_file" "advise_service" {
   type        = "zip"
-  source_dir  = "${path.module}/../../../../backend/advise-service"
+  source_dir  = "${path.module}/../backend/advise-service"
   output_path = "${path.module}/advise-service.zip"
 }
 
