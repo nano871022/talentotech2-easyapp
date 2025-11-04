@@ -53,6 +53,10 @@ jobs:
       run: terraform fmt
       working-directory: ./terraform
 
+    - name: Terraform Plan
+      run: terraform plan
+      working-directory: ./terraform
+
     - name: Terraform Apply
       env:
        TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
