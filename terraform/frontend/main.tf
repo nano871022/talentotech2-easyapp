@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.project_name}-frontend"
+  bucket = "${lower(var.project_name)}-frontend"
 }
 
 resource "aws_s3_bucket_website_configuration" "frontend" {
