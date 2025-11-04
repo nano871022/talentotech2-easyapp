@@ -19,10 +19,6 @@ variable "jwt_secret" {
   sensitive   = true
 }
 
-variable "region" {
-  description = "The AWS region"
-  type        = string
-}
 
 variable "account_id" {
   description = "The AWS account ID"
@@ -40,3 +36,14 @@ variable "sns_topic_arn" {
   type        = string
   default     = ""
 }
+
+variable "db_driver" {
+  description = "The database driver to be used by the advise service"
+  type        = string
+}
+
+variable "region" {
+  description = "The AWS region"
+  type        = string
+  default     = "us-east-1"
+}  

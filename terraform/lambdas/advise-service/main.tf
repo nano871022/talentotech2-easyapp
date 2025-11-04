@@ -23,6 +23,10 @@ resource "aws_lambda_function" "advise_service" {
       DYNAMODB_TABLE_REQUESTS = var.dynamodb_requests_table
       JWT_SECRET              = var.jwt_secret
       SNS_TOPIC_ARN           = var.sns_topic_arn
+      DB_DRIVER                        = var.db_driver
+      AWS_SECRET_ACCESS_KEY_DYNAMO_USER = "" 
+      AWS_ACCESS_KEY_DYNAMO_USER        = ""  
+      AWS_REGION                        = var.region
     }
   }
 

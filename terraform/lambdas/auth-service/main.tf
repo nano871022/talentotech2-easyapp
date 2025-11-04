@@ -19,9 +19,13 @@ resource "aws_lambda_function" "auth_service" {
 
   environment {
     variables = {
-      APP_ENV               = "production"
-      DYNAMODB_TABLE_ADMINS = var.dynamodb_admins_table
-      JWT_SECRET            = var.jwt_secret
+      APP_ENV                           = "production"
+      DYNAMODB_TABLE_ADMINS             = var.dynamodb_admins_table
+      JWT_SECRET                        = var.jwt_secret
+      DB_DRIVER                         = var.db_driver
+      AWS_SECRET_ACCESS_KEY_DYNAMO_USER = "" 
+      AWS_ACCESS_KEY_DYNAMO_USER        = ""  
+      AWS_REGION                        = var.region
     }
   }
 

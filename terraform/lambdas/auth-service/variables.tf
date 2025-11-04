@@ -34,3 +34,15 @@ variable "bref_php_layer" {
   type        = string
   default     = "arn:aws:lambda:us-east-1:534081306603:layer:php-81-fpm:59"
 }
+
+variable "db_driver" {
+  description = "The database driver to be used by the advise service"
+  type        = string
+  default = "dynamodb"
+}
+
+variable "region" {
+  description = "The AWS region"
+  type        = string
+  default     = "us-east-1" 
+}
