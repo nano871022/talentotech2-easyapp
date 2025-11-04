@@ -51,8 +51,8 @@ module "api_gateway" {
   # API Gateway expects the integration URI in the form:
   # arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
   # The api-gateway module will receive the full URI via these two variables.
-  lambda_auth_invoke_arn = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${module.lambda_auth.invoke_arn}/invocations"
-  lambda_advise_invoke_arn = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${module.lambda_advise.invoke_arn}/invocations"
+  lambda_auth_invoke_arn = module.lambda_auth.invoke_arn
+  lambda_advise_invoke_arn = module.lambda_advise.invoke_arn
   lambda_auth_function_name   = module.lambda_auth.function_name
   lambda_advise_function_name = module.lambda_advise.function_name
 }
