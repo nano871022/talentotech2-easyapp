@@ -24,8 +24,8 @@ $path = $_SERVER['REQUEST_URI'] ?? '/';
 
 $routes = [
     'POST' => [
-        '/api/v1/auth/login' => [AuthController::class, 'login'],
-        '/api/v1/auth/register' => [AuthController::class, 'register'],
+        '/dev/auth/login' => [AuthController::class, 'login'],
+        '/dev/auth/register' => [AuthController::class, 'register'],
     ],
 ];
 
@@ -48,5 +48,5 @@ if ($handler) {
     }
 } else {
     http_response_code(404);
-    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.']);
+    echo json_encode(['error' => 'Not Found', 'message' => 'The requested endpoint does not exist.', 'Method'=>$method,'Path'=>$path);
 }
