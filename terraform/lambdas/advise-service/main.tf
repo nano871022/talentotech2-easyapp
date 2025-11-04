@@ -20,7 +20,7 @@ resource "aws_lambda_function" "advise_service" {
     }
   }
 
-  layers = [var.bref_php_layer]
+  # layers = [var.bref_php_layer]
 
   depends_on = [data.archive_file.advise_service]
 }
