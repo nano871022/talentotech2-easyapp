@@ -24,7 +24,6 @@ module "lambda_auth" {
   dynamodb_admins_table      = module.dynamodb.admins_table_name
   dynamodb_admins_table_arn  = module.dynamodb.admins_table_arn
   jwt_secret                 = var.jwt_secret
-  region                     = var.region
   account_id                 = var.account_id
   bref_php_layer             = var.bref_php_layer
 }
@@ -36,7 +35,6 @@ module "lambda_advise" {
   dynamodb_requests_table      = module.dynamodb.requests_table_name
   dynamodb_requests_table_arn  = module.dynamodb.requests_table_arn
   jwt_secret                   = var.jwt_secret
-  region                       = var.region
   account_id                   = var.account_id
   bref_php_layer               = var.bref_php_layer
   sns_topic_arn                = module.sns.sns_topic_arn
