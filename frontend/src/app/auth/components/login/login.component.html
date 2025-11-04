@@ -18,6 +18,9 @@
                     <input class="block w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="password" formControlName="password" placeholder="********" type="password"/>
                 </div>
             </div>
+            <div>
+              <a routerLink="/auth/register" class="hover:text-primary">Register</a>
+            </div>
 
             <!-- The error message is now displayed conditionally -->
             <div *ngIf="loginError" class="p-4 rounded-md bg-error-light dark:bg-error-dark">
