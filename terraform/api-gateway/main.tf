@@ -6,21 +6,21 @@ resource "aws_api_gateway_rest_api" "main" {
       version = "1.0"
     }
     paths = {
-      "/auth/{proxy+}" = {
+      "/auth" = {
         x-amazon-apigateway-any-method = {
           x-amazon-apigateway-integration = {
             httpMethod           = "POST"
             type                 = "AWS_PROXY"
-            uri                  = var.lambda_auth_invoke_arn
+            uri                  = module.lambdas.auth-service.invoke_arn
           }
         }
       }
-      "/api/{proxy+}" = {
+      "/api" = {
         x-amazon-apigateway-any-method = {
           x-amazon-apigateway-integration = {
             httpMethod           = "POST"
             type                 = "AWS_PROXY"
-            uri                  = var.lambda_advise_invoke_arn
+            uri                  = module.lambdas.advise-service.invoke_arn
           }
         }
       }
