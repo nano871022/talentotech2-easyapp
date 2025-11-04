@@ -56,7 +56,7 @@ export interface RequestSummary {
   providedIn: 'root'
 })
 export class RequestService {
-  private apiUrl = `${environment.API_BASE_URL}/requests`;
+  private apiUrl = `${environment.API_BASE_URL}/api/requests`;
 
   constructor(private http: HttpClient) { }
 
@@ -91,7 +91,7 @@ export class RequestService {
    * @returns An Observable containing a RequestSummary object.
    */
   getRequestSummary(id: number): Observable<RequestSummary> {
-    return this.http.get<RequestSummary>(`${this.apiUrl}/summary/${id}`);
+    return this.http.get<RequestSummary>(`${this.apiUrl}/api/summary/${id}`);
     }
 
 
@@ -101,7 +101,7 @@ export class RequestService {
    * @returns An Observable containing the detailed request data.
    */
   getRequestDetails(id: number): Observable<RequestDetail> {
-    const url = `${this.apiUrl}/${id}`;
+    const url = `${this.apiUrl}/api/${id}`;
     return this.http.get<RequestDetail>(url);
   }
 
@@ -112,7 +112,7 @@ export class RequestService {
    * @returns An Observable with the result of the operation.
    */
   updateContactStatus(id: number, contactado: boolean): Observable<any> {
-    const url = `${this.apiUrl}/${id}/status`;
+    const url = `${this.apiUrl}/api/${id}/status`;
     const body = { contactado };
     return this.http.put(url, body);
   }
@@ -123,7 +123,7 @@ export class RequestService {
    * @returns An Observable of the HTTP response.
    */
   correctData(data: { requestId: number; campoACorregir: string; valorAnterior: string; valorNuevo: string; }): Observable<any> {
-    const url = `${this.apiUrl}/correct-data`;
+    const url = `${this.apiUrl}/api/correct-data`;
     return this.http.post(url, data);
   }
 
