@@ -35,7 +35,7 @@ jobs:
     - name: Empty S3 Bucket Before Destroy
       run: |
         # Definir el nombre del bucket directamente
-        BUCKET_NAME="repository-terraform-states-prod"
+        BUCKET_NAME="my-terraform-state-easyapp-talentotech"
         
         echo "Verificando bucket: $BUCKET_NAME"
         
@@ -91,7 +91,7 @@ jobs:
 
     - name: Force Delete S3 Bucket (if Terraform fails)
       run: |
-        BUCKET_NAME="repository-terraform-states-prod"
+        BUCKET_NAME="my-terraform-state-easyapp-talentotech"
         
         # Intentar eliminar el bucket directamente si aún existe después del destroy
         if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
