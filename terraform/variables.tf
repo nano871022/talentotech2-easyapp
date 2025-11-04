@@ -43,7 +43,7 @@ variable "notification_email" {
   type        = string
 }
 
-variable "aws_secret_access_key_dynamo_user" {
+variable "AWS_SECRET_ACCESS_KEY_DYNAMO_USER" {
   description = "The AWS secret access key for the DynamoDB user"
   type        = string
 }
