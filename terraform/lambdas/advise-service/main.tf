@@ -16,7 +16,6 @@ resource "aws_lambda_function" "advise_service" {
       APP_ENV                = "production"
       DYNAMODB_TABLE_REQUESTS = var.dynamodb_requests_table
       JWT_SECRET             = var.jwt_secret
-      AWS_REGION             = var.region
       SNS_TOPIC_ARN         = var.sns_topic_arn
     }
   }
