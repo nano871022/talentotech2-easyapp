@@ -1,12 +1,20 @@
 <?php
-// CORS headers are now handled by nginx - no need to set them here
-// Handle preflight requests are also handled by nginx
+// Set CORS headers
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 // Set content type to JSON
 header("Content-Type: application/json");
 
-// Include Composer's autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+// Include bootstrap file
+require_once __DIR__ . '/bootstrap.php';
 
 use App\Controllers\AuthController;
 
