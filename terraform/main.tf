@@ -1,101 +1,78 @@
+module "frontend" {
+  source       = "./frontend"
+  project_name = var.project_name
+  domain_name  = var.domain_name
+}
 
-terraform {
-  required_version = "~> 1.0"
+module "dynamodb" {
+  source       = "./dynamodb"
+  project_name = var.project_name
+  environment  = var.environment
+}
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "6.18.0"
-    }
+module "sns" {
+  source             = "./sns"
+  project_name       = var.project_name
+  notification_email = var.notification_email
+}
+
+# Módulo para Lambda de Auth
+module "lambda_auth" {
+  source       = "./lambdas/auth-service"
+  project_name = var.project_name
+
+  dynamodb_admins_table      = module.dynamodb.admins_table_name
+  dynamodb_admins_table_arn  = module.dynamodb.admins_table_arn
+  jwt_secret                 = var.jwt_secret
+  region                     = var.region
+  account_id                 = var.account_id
+  bref_php_layer             = var.bref_php_layer
+}
+
+module "lambda_advise" {
+  source       = "./lambdas/advise-service"
+  project_name = var.project_name
+
+  dynamodb_requests_table      = module.dynamodb.requests_table_name
+  dynamodb_requests_table_arn  = module.dynamodb.requests_table_arn
+  jwt_secret                   = var.jwt_secret
+  region                       = var.region
+  account_id                   = var.account_id
+  bref_php_layer               = var.bref_php_layer
+  sns_topic_arn                = module.sns.sns_topic_arn
+}
+
+module "api_gateway" {
+  source       = "./api-gateway"
+  project_name = var.project_name
+  environment  = var.environment
+
+  # las siguientes líneas construyen la URI completa requerida por API Gateway
+  # API Gateway expects the integration URI in the form:
+  # arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
+  # The api-gateway module will receive the full URI via these two variables.
+  lambda_auth_invoke_arn = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${module.lambda_auth.invoke_arn}/invocations"
+  lambda_advise_invoke_arn = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${module.lambda_advise.invoke_arn}/invocations"
+  lambda_auth_function_name   = module.lambda_auth.function_name
+  lambda_advise_function_name = module.lambda_advise.function_name
+}
+
+output "frontend_url" {
+  value = module.frontend.cloudfront_domain
+}
+
+output "api_gateway_url" {
+  value = module.api_gateway.api_gateway_url
+}
+
+output "dynamodb_tables" {
+  value = {
+    admins           = module.dynamodb.admins_table_name
+    requests         = module.dynamodb.requests_table_name
+    data_corrections = module.dynamodb.data_corrections_table_name
   }
-
-  # Comentamos temporalmente el backend S3
-  # backend "s3" {
-  #   bucket         = "repository-terraform-states-prod"
-  #   key            = "repository.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   use_lockfile   = true
-  # }
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
-# Bucket S3 para hosting estático del frontend Angular
-resource "aws_s3_bucket" "frontend_static" {
-  bucket = "repository-terraform-states-prod"
-
-  # Permite eliminar el bucket aunque tenga contenido
-  force_destroy = true
-
-  tags = {
-    Name        = "Frontend Static Hosting"
-    Environment = "prod"
-    Purpose     = "static-website"
-  }
-}
-
-# Configuración para hosting de sitio web estático
-resource "aws_s3_bucket_website_configuration" "frontend_static_website" {
-  bucket = aws_s3_bucket.frontend_static.id
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "index.html" # Para SPAs como Angular, redirigir errores a index.html
-  }
-
-  routing_rule {
-    condition {
-      http_error_code_returned_equals = "404"
-    }
-    redirect {
-      replace_key_with = "index.html"
-    }
-  }
-}
-
-# Configurar acceso público para el bucket
-resource "aws_s3_bucket_public_access_block" "frontend_static_pab" {
-  bucket = aws_s3_bucket.frontend_static.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-# Política para permitir acceso público de lectura
-resource "aws_s3_bucket_policy" "frontend_static_policy" {
-  bucket = aws_s3_bucket.frontend_static.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.frontend_static.arn}/*"
-      }
-    ]
-  })
-
-  depends_on = [aws_s3_bucket_public_access_block.frontend_static_pab]
-}
-
-# Outputs
-output "website_url" {
-  description = "URL del sitio web estático"
-  value       = "http://${aws_s3_bucket_website_configuration.frontend_static_website.website_endpoint}"
-}
-
-output "bucket_name" {
-  description = "Nombre del bucket S3"
-  value       = aws_s3_bucket.frontend_static.id
+output "sns_topic_arn" {
+  value = module.sns.sns_topic_arn
 }
