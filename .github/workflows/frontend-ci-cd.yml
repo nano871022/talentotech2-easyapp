@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: |
           cd frontend
-          ./node_modules/.bin/ng build --configuration production
+          ./node_modules/.bin/ng prod
 
       - name: Flatten build output
         run: |
