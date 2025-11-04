@@ -19,7 +19,7 @@ resource "aws_lambda_function" "auth_service" {
     }
   }
 
-  layers = [var.bref_php_layer]
+  #layers = [var.bref_php_layer]
 
   depends_on = [data.archive_file.auth_service]
 }
