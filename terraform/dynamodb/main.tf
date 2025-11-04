@@ -29,11 +29,6 @@ resource "aws_dynamodb_table" "requests" {
   range_key    = "created_at"
 
   attribute {
-    name = "id"
-    type = "S"
-  }
-
-  attribute {
     name = "email"
     type = "S"
   }
