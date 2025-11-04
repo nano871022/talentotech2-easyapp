@@ -13,6 +13,7 @@ variable "jwt_secret" {
   description = "The JWT secret for authentication"
   type        = string
   sensitive   = true
+  default     =  "jwt-secret-no-inject"
 }
 
 variable "region" {
