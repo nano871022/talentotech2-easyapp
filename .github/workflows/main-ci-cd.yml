@@ -19,6 +19,9 @@ jobs:
   create-tag:
     needs: [frontend]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,3 +33,7 @@ jobs:
           TAG_NAME=$(date +'%d%m%Y-%H%M%S')
           git tag $TAG_NAME
           git push origin $TAG_NAME
+        env:
+          # El GITHUB_TOKEN es un secret especial proporcionado por Actions
+          # para autenticar operaciones contra el repositorio.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
