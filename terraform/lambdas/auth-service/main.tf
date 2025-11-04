@@ -1,24 +1,10 @@
-# Prepare Lambda package with shared dependencies
-resource "null_resource" "prepare_auth_package" {
-  triggers = {
-    # Trigger rebuild when any PHP file changes
-    src_hash = sha256(join("", [
-      for f in fileset("${path.module}/../../../backend/auth-service", "**/*.php") :
-      filesha256("${path.module}/../../../backend/auth-service/${f}")
-    ]))
-  }
-
-  provisioner "local-exec" {
-    command = "cd ${path.module}/../../../backend/auth-service && bash prepare-lambda.sh"
-  }
-}
+# Note: Lambda package should be prepared before running Terraform
+# Run: bash build-all-lambdas-docker.sh from project root
 
 data "archive_file" "auth_service" {
   type        = "zip"
   source_dir  = "${path.module}/../../../backend/auth-service/lambda-build"
   output_path = "${path.module}/auth-service.zip"
-
-  depends_on = [null_resource.prepare_auth_package]
 }
 
 resource "aws_lambda_function" "auth_service" {
@@ -26,7 +12,7 @@ resource "aws_lambda_function" "auth_service" {
   function_name    = "${var.project_name}-auth-service"
   role             = aws_iam_role.lambda_exec.arn
   handler          = "api/index.php"
-  runtime          = "provided.al2023"
+  runtime          = "provided.al2"
   timeout          = 30
   memory_size      = 512
   source_code_hash = data.archive_file.auth_service.output_base64sha256

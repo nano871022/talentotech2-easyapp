@@ -30,7 +30,7 @@ variable "account_id" {
 variable "bref_php_layer" {
   description = "The ARN of the Bref PHP 8.1 FPM layer"
   type        = string
-  default     = "arn:aws:lambda:us-east-1:534081306603:layer:php-81-fpm:59"
+  default     = "arn:aws:lambda:us-east-1:534081306603:layer:php-81-fpm:111"
 }
 
 variable "environment" {
