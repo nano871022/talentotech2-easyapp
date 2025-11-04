@@ -43,17 +43,6 @@ variable "notification_email" {
   type        = string
 }
 
-<<<<<<< HEAD
-variable "aws_access_key_dynamo_user" {
-  description = "Key user for bynamo"
-  type = string
-}
-
-variable "aws_secret_access_key_dynamo_user"{
-  description = "Sectret user for bynamo"
-  type = string
-
-=======
 variable "aws_secret_access_key_dynamo_user" {
   description = "The AWS secret access key for the DynamoDB user"
   type        = string
@@ -64,5 +53,4 @@ variable "aws_access_key_dynamo_user" {
   description = "The AWS access key for the DynamoDB user"
   type        = string
   sensitive   = true
->>>>>>> dad07d3 (Update variables.tf)
 }
