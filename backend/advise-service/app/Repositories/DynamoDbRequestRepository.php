@@ -28,9 +28,15 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
     {
         $id = $this->generateUuidV4();
         try {
+            $timestamp = time();
             $this->dynamoDb->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
+                    // Table keys
+                    'email'      => ['S' => $request->getCorreo()],
+                    'created_at' => ['N' => (string)$timestamp],
+
+                    // Non-key attributes (retain existing ones for compatibility)
                     'id'        => ['S' => $id],
                     'createdAt' => ['S' => date('Y-m-d H:i:s')],
                     'nombre'    => ['S' => $request->getNombre()],
@@ -80,15 +86,21 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
     public function findById(string $id): ?Request
     {
         try {
-            $result = $this->dynamoDb->getItem([
+            // No index on id; scan and filter
+            $result = $this->dynamoDb->scan([
                 'TableName' => $this->tableName,
-                'Key' => [
-                    'id' => ['S' => $id],
+                'FilterExpression' => '#id = :id',
+                'ExpressionAttributeNames' => [
+                    '#id' => 'id',
                 ],
+                'ExpressionAttributeValues' => [
+                    ':id' => ['S' => $id],
+                ],
+                'Limit' => 1,
             ]);
 
-            if (isset($result['Item'])) {
-                $item = $result['Item'];
+            if (!empty($result['Items'])) {
+                $item = $result['Items'][0];
                 $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
                 
                 return new Request(
@@ -97,7 +109,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     $item['telefono']['S'],
                     $item['id']['S'],
                     $item['estado']['S'],
-                    $item['createdAt']['S'],
+                    $item['createdAt']['S'] ?? (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null),
                     $idiomas
                 );
             }
@@ -126,11 +138,13 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
     public function updateStatus(int $id, bool $contactado): bool
     {
         try {
+            $keys = $this->resolveKeysById((string)$id);
+            if ($keys === null) {
+                return false;
+            }
             $this->dynamoDb->updateItem([
                 'TableName' => $this->tableName,
-                'Key' => [
-                    'id' => ['S' => (string)$id],
-                ],
+                'Key' => $keys,
                 'UpdateExpression' => 'set estado = :s',
                 'ExpressionAttributeValues' => [
                     ':s' => ['S' => $contactado ? 'contacted' : 'pending'],
@@ -154,11 +168,13 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         }
 
         try {
+            $keys = $this->resolveKeysById((string)$requestId);
+            if ($keys === null) {
+                return false;
+            }
             $this->dynamoDb->updateItem([
                 'TableName' => $this->tableName,
-                'Key' => [
-                    'id' => ['S' => (string)$requestId],
-                ],
+                'Key' => $keys,
                 'UpdateExpression' => "set $field = :v",
                 'ExpressionAttributeValues' => [
                     ':v' => ['S' => $newValue],
@@ -171,6 +187,33 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         }
 
         return false;
+    }
+
+    private function resolveKeysById(string $id): ?array
+    {
+        try {
+            $result = $this->dynamoDb->scan([
+                'TableName' => $this->tableName,
+                'FilterExpression' => '#id = :id',
+                'ExpressionAttributeNames' => [
+                    '#id' => 'id',
+                ],
+                'ExpressionAttributeValues' => [
+                    ':id' => ['S' => $id],
+                ],
+                'Limit' => 1,
+            ]);
+            if (!empty($result['Items'])) {
+                $item = $result['Items'][0];
+                return [
+                    'email' => ['S' => $item['email']['S']],
+                    'created_at' => ['N' => $item['created_at']['N']],
+                ];
+            }
+        } catch (AwsException $e) {
+            error_log('DynamoDbRequestRepository Error - resolveKeysById: ' . $e->getMessage());
+        }
+        return null;
     }
 
     private function generateUuidV4(): string

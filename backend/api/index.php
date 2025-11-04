@@ -14,20 +14,26 @@ use App\Controllers\InfoController;
 $method = $_SERVER['REQUEST_METHOD'];
 $path = $_SERVER['PATH_INFO'] ?? '/';
 
+// Normalize optional "/api" prefix from API Gateway so both /dev/requests and /dev/api/requests work
+// This keeps current hardcoded stage-based routes intact
+if (strpos($path, '/dev/api') === 0) {
+    $path = preg_replace('#^/dev/api#', '/dev', $path);
+}
+
 // Define the API routes, including regex for dynamic paths
 $routes = [
     'POST' => [
-        '/v1/auth/login' => [AuthController::class, 'login'],
-        '/v1/requests' => [RequestController::class, 'createRequest'],
-        '/v1/requests/correct-data' => [RequestController::class, 'correctData'],
+        '/dev/auth/login' => [AuthController::class, 'login'],
+        '/dev/requests' => [RequestController::class, 'createRequest'],
+        '/dev/requests/correct-data' => [RequestController::class, 'correctData'],
     ],
     'GET' => [
-        '/v1/requests' => [RequestController::class, 'getRequests'], // Exact match for list
-        '~^/v1/requests/\d+$~' => [RequestController::class, 'getRequest'], // Regex for /v1/requests/{id}
-        '/v1/info/landing' => [InfoController::class, 'getLandingInfo'],
+        '/dev/requests' => [RequestController::class, 'getRequests'], // Exact match for list
+        '~^/dev/requests/\d+$~' => [RequestController::class, 'getRequest'], // Regex for /v1/requests/{id}
+        '/dev/info/landing' => [InfoController::class, 'getLandingInfo'],
     ],
     'PUT' => [
-        '~^/v1/requests/\d+/status$~' => [RequestController::class, 'updateStatus'], // Regex for /v1/requests/{id}/status
+        '~^/dev/requests/\d+/status$~' => [RequestController::class, 'updateStatus'], // Regex for /v1/requests/{id}/status
     ],
 ];
 
@@ -53,7 +59,7 @@ if (isset($routes[$method])) {
 
 if (!$handler) {
     // Check for dynamic routes (e.g., /v1/requests/summary/{id})
-    if ($method === 'GET' && preg_match('/^\/v1\/requests\/summary\/(\d+)$/', $path, $matches)) {
+    if ($method === 'GET' && preg_match('/^\/dev\/requests\/summary\/(\d+)$/', $path, $matches)) {
         // We have a match, set the handler manually
         $handler = [RequestController::class, 'getRequestSummary'];
     }
