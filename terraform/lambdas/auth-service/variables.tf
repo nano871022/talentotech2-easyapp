@@ -41,3 +41,9 @@ variable "aws_access_key_dynamo_user" {
   type        = string
   sensitive   = true
 }
+
+variable "region" {
+  description = "The AWS region"
+  type        = string
+  default     = "us-east-1"
+}

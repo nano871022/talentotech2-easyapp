@@ -24,8 +24,9 @@ resource "aws_lambda_function" "advise_service" {
       JWT_SECRET              = var.jwt_secret
       SNS_TOPIC_ARN           = var.sns_topic_arn
       DB_DRIVER                        = "dynamodb"
-      AWS_SECRET_ACCESS_KEY_DYNAMO_USER = var.aws_secret_access_key_dynamo_user 
-      AWS_ACCESS_KEY_DYNAMO_USER        = var.aws_access_key_dynamo_user  
+      AWS_SECRET_ACCESS_KEY_DYNAMO_USER = var.aws_secret_access_key_dynamo_user
+      AWS_ACCESS_KEY_DYNAMO_USER        = var.aws_access_key_dynamo_user
+      AWS_REGION                        = "us-east-1"
     }
   }
 
