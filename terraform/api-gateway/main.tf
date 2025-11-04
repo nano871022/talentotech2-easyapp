@@ -75,9 +75,9 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
   retention_in_days = 7
 }
 
-# Permisos para que API Gateway invoque las Lambdas
+# Permisos para que API Gateway v2 invoque las Lambdas
 resource "aws_lambda_permission" "auth" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+  statement_id  = "AllowExecutionFromAPIGatewayV2"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_auth_function_name
   principal     = "apigateway.amazonaws.com"
@@ -85,7 +85,7 @@ resource "aws_lambda_permission" "auth" {
 }
 
 resource "aws_lambda_permission" "advise" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+  statement_id  = "AllowExecutionFromAPIGatewayV2"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_advise_function_name
   principal     = "apigateway.amazonaws.com"
