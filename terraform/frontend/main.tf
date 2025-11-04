@@ -1,10 +1,6 @@
-resource "aws_s3_bucket" "frontend" {
-  bucket = "${lower(var.project_name)}-frontend"
-}
-
 # Bucket S3 para hosting estático del frontend Angular
 resource "aws_s3_bucket" "frontend_static" {
-  bucket = aws_s3_bucket.frontend.id
+  bucket = "${lower(var.project_name)}-frontend"
 
   # Permite eliminar el bucket aunque tenga contenido
   force_destroy = true
