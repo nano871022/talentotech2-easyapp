@@ -1,25 +1,46 @@
+# Prepare Lambda package with shared dependencies
+resource "null_resource" "prepare_auth_package" {
+  triggers = {
+    # Trigger rebuild when any PHP file changes
+    src_hash = sha256(join("", [
+      for f in fileset("${path.module}/../../../backend/auth-service", "**/*.php") :
+      filesha256("${path.module}/../../../backend/auth-service/${f}")
+    ]))
+  }
+
+  provisioner "local-exec" {
+    command = "cd ${path.module}/../../../backend/auth-service && bash prepare-lambda.sh"
+  }
+}
+
 data "archive_file" "auth_service" {
   type        = "zip"
-  source_dir  = "${path.module}/../../../backend/auth-service"
+  source_dir  = "${path.module}/../../../backend/auth-service/lambda-build"
   output_path = "${path.module}/auth-service.zip"
+
+  depends_on = [null_resource.prepare_auth_package]
 }
 
 resource "aws_lambda_function" "auth_service" {
   filename         = data.archive_file.auth_service.output_path
   function_name    = "${var.project_name}-auth-service"
-  role            = aws_iam_role.lambda_exec.arn
-  handler         = "handler.php"
-  runtime         = "provided.al2023"
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "api/index.php"
+  runtime          = "provided.al2023"
+  timeout          = 30
+  memory_size      = 512
+  source_code_hash = data.archive_file.auth_service.output_base64sha256
 
   environment {
     variables = {
-      APP_ENV              = "production"
+      APP_ENV               = "production"
       DYNAMODB_TABLE_ADMINS = var.dynamodb_admins_table
-      JWT_SECRET           = var.jwt_secret
+      JWT_SECRET            = var.jwt_secret
     }
   }
 
-  #layers = [var.bref_php_layer]
+  # Using Bref PHP 8.1 FPM layer for API Gateway requests
+  layers = ["arn:aws:lambda:${var.region}:534081306603:layer:php-81-fpm:59"]
 
   depends_on = [data.archive_file.auth_service]
 }

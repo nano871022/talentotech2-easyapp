@@ -26,20 +26,16 @@ jobs:
         with:
           php-version: '8.1'
 
-      - name: Install Composer dependencies
+      - name: Prepare Lambda package
         run: |
           cd backend/auth-service
-          composer install --no-dev --optimize-autoloader
-
-      - name: Copy Core and Middleware directories
-        run: |
-          cp -r backend/app/core backend/auth-service/app/Core
-          cp -r backend/app/Middleware backend/auth-service/app/Middleware
+          # Run the Lambda preparation script
+          bash prepare-lambda.sh
 
       - name: Create deployment package
         run: |
-          cd backend/auth-service
-          zip -r deployment.zip . -x "*.git*"
+          cd backend/auth-service/lambda-build
+          zip -r ../deployment.zip . -x "*.git*" -x "*.env*"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -26,20 +26,16 @@ jobs:
         with:
           php-version: '8.1'
 
-      - name: Install Composer dependencies
+      - name: Prepare Lambda package
         run: |
           cd backend/advise-service
-          composer install --no-dev --optimize-autoloader
-
-      - name: Copy Core and Middleware directories
-        run: |
-          cp -r backend/app/core backend/advise-service/app/Core
-          cp -r backend/app/Middleware backend/advise-service/app/Middleware
+          # Run the Lambda preparation script
+          bash prepare-lambda.sh
 
       - name: Create deployment package
         run: |
-          cd backend/advise-service
-          zip -r deployment.zip . -x "*.git*"
+          cd backend/advise-service/lambda-build
+          zip -r ../deployment.zip . -x "*.git*" -x "*.env*"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

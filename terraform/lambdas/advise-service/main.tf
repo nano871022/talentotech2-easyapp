@@ -1,26 +1,47 @@
+# Prepare Lambda package with shared dependencies
+resource "null_resource" "prepare_advise_package" {
+  triggers = {
+    # Trigger rebuild when any PHP file changes
+    src_hash = sha256(join("", [
+      for f in fileset("${path.module}/../../../backend/advise-service", "**/*.php") :
+      filesha256("${path.module}/../../../backend/advise-service/${f}")
+    ]))
+  }
+
+  provisioner "local-exec" {
+    command = "cd ${path.module}/../../../backend/advise-service && bash prepare-lambda.sh"
+  }
+}
+
 data "archive_file" "advise_service" {
   type        = "zip"
-  source_dir  = "${path.module}/../../../backend/advise-service"
+  source_dir  = "${path.module}/../../../backend/advise-service/lambda-build"
   output_path = "${path.module}/advise-service.zip"
+
+  depends_on = [null_resource.prepare_advise_package]
 }
 
 resource "aws_lambda_function" "advise_service" {
   filename         = data.archive_file.advise_service.output_path
   function_name    = "${var.project_name}-advise-service"
-  role            = aws_iam_role.lambda_exec.arn
-  handler         = "handler.php"
-  runtime         = "provided.al2023"
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "api/index.php"
+  runtime          = "provided.al2023"
+  timeout          = 30
+  memory_size      = 512
+  source_code_hash = data.archive_file.advise_service.output_base64sha256
 
   environment {
     variables = {
-      APP_ENV                = "production"
+      APP_ENV                 = "production"
       DYNAMODB_TABLE_REQUESTS = var.dynamodb_requests_table
-      JWT_SECRET             = var.jwt_secret
-      SNS_TOPIC_ARN         = var.sns_topic_arn
+      JWT_SECRET              = var.jwt_secret
+      SNS_TOPIC_ARN           = var.sns_topic_arn
     }
   }
 
-  # layers = [var.bref_php_layer]
+  # Using Bref PHP 8.1 FPM layer for API Gateway requests
+  layers = ["arn:aws:lambda:${var.region}:534081306603:layer:php-81-fpm:59"]
 
   depends_on = [data.archive_file.advise_service]
 }
