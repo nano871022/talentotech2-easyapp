@@ -23,8 +23,8 @@ resource "aws_lambda_function" "auth_service" {
       DYNAMODB_TABLE_ADMINS             = var.dynamodb_admins_table
       JWT_SECRET                        = var.jwt_secret
       DB_DRIVER                         = "dynamodb"
-      AWS_SECRET_ACCESS_KEY_DYNAMO_USER = var.aws_secret_access_key_dynamo_user
-      AWS_ACCESS_KEY_DYNAMO_USER        = var.aws_access_key_dynamo_user
+      AWS_SECRET_ACCESSS_KEY            = var.aws_secret_access_key_dynamo_user
+      AWS_ACCESS_KEY_ID                 = var.aws_access_key_dynamo_user
     }
   }
 
