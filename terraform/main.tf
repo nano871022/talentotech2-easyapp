@@ -27,7 +27,7 @@ module "lambda_auth" {
   account_id                 = var.account_id
   bref_php_layer             = var.bref_php_layer
   aws_secret_access_key_dynamo_user = var.aws_secret_access_key_dynamo_user
-  aws_access_key_dynamo_user        = var.aws_access_key_dynamo_user
+  aws_access_key_dynamo_user        = var.AWS_ACCESS_KEY_DYNAMO_USER
 }
 
 module "lambda_advise" {
@@ -41,7 +41,7 @@ module "lambda_advise" {
   bref_php_layer               = var.bref_php_layer
   sns_topic_arn                = module.sns.sns_topic_arn
   aws_secret_access_key_dynamo_user = var.aws_secret_access_key_dynamo_user
-  aws_access_key_dynamo_user        = var.aws_access_key_dynamo_user
+  aws_access_key_dynamo_user        = var.AWS_ACCESS_KEY_DYNAMO_USER
   }
 
 module "api_gateway" {
