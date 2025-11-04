@@ -1,6 +1,6 @@
 data "archive_file" "auth_service" {
   type        = "zip"
-  source_dir  = "${path.module}/../backend/auth-service"
+  source_dir  = "${path.module}/../../../backend/auth-service"
   output_path = "${path.module}/auth-service.zip"
 }
 
