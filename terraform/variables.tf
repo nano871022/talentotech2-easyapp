@@ -48,7 +48,7 @@ variable "aws_secret_access_key_dynamo_user" {
   type        = string
 }
 
-variable "aws_access_key_dynamo_user" {
+variable "AWS_ACCESS_KEY_DYNAMO_USER" {
   description = "The AWS access key for the DynamoDB user"
   type        = string
 }
