@@ -54,5 +54,10 @@ jobs:
       working-directory: ./terraform
 
     - name: Terraform Apply
+      env:
+       TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_AWS_REGION: ${{ secrets.TF_VAR_AWS_REGION }}
+       TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY_DYNAMO_USER }}
+       TF_VAR_JWT_SECRET: ${{ secrets.TF_VAR_JWT_SECRET }}
       run: terraform apply -auto-approve
       working-directory: ./terraform
