@@ -21,7 +21,7 @@ class DynamoDbAdminRepository implements AdminRepositoryInterface
                 'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'],
             ],
         ]);
-        $this->tableName = 'admins';
+        $this->tableName = 'Language-Advisory-Platform-admins';
     }
 
     public function findByUsername(string $username): ?Admin
