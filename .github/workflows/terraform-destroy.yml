@@ -91,7 +91,7 @@ jobs:
 
     - name: Force Delete S3 Bucket (if Terraform fails)
       run: |
-        BUCKET_NAME="my-terraform-state-easyapp-talentotech"
+        BUCKET_NAME="language-advisory-platform-frontend"
         
         # Intentar eliminar el bucket directamente si aún existe después del destroy
         if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
