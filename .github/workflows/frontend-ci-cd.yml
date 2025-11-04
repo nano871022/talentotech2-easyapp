@@ -39,8 +39,9 @@ jobs:
 
       - name: Build
         run: |
-          cd frontend
-          ./node_modules/.bin/npm run prod
+          cd frontend 
+          # ./node_modules/.bin/
+          npm run prod
 
       - name: Flatten build output
         run: |
