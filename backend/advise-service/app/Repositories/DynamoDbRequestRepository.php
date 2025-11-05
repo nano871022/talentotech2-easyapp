@@ -30,6 +30,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         $id = $this->generateUuidV4();
         try {
             $timestamp = time();
+            $createdAtStr = date('Y-m-d H:i:s');
             $this->dynamoDb->putItem([
                 'TableName' => $this->tableName,
                 'Item' => [
@@ -39,16 +40,26 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
 
                     // Non-key attributes (retain existing ones for compatibility)
                     'id'        => ['S' => $id],
-                    'createdAt' => ['S' => date('Y-m-d H:i:s')],
+                    'createdAt' => ['S' => $createdAtStr],
                     'nombre'    => ['S' => $request->getNombre()],
                     'correo'    => ['S' => $request->getCorreo()],
-                    'telefono'  => ['S' => $request->getTelefono()],
+                    'telefono'  => $request->getTelefono() !== null ? ['S' => $request->getTelefono()] : ['NULL' => true],
                     'estado'    => ['S' => 'pending'],
                     'idiomas'   => ['S' => $request->getIdiomas() ? json_encode($request->getIdiomas()) : ''],
                 ],
             ]);
 
-            return $this->findById($id);
+            // Return constructed entity to avoid read-after-write nulls
+            return new Request(
+                $request->getNombre(),
+                $request->getCorreo(),
+                $request->getEmail(),
+                $request->getTelefono(),
+                $id,
+                'pending',
+                $createdAtStr,
+                $request->getIdiomas()
+            );
         } catch (AwsException $e) {
             error_log('DynamoDbRequestRepository Error - save: ' . $e->getMessage());
         }
@@ -62,15 +73,14 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
         try {
             $result = $this->dynamoDb->scan([
                 'TableName' => $this->tableName,
+                'ConsistentRead' => true,
             ]);
 
             foreach ($result['Items'] as $item) {
                 $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
                 $email = isset($item['email']['S']) ? $item['email']['S'] : ($item['correo']['S'] ?? '');
                 $telefono = isset($item['telefono']['S']) ? $item['telefono']['S'] : null;
-                $createdAt = isset($item['createdAt']['S'])
-                    ? $item['createdAt']['S']
-                    : (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null);
+                $createdAt = $this->extractCreatedAtFromItem($item);
 
                 $requests[] = new Request(
                     $item['nombre']['S'] ?? '',
@@ -104,6 +114,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     ':id' => ['S' => $id],
                 ],
                 'Limit' => 1,
+                'ConsistentRead' => true,
             ]);
 
             if (!empty($result['Items'])) {
@@ -111,9 +122,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                 $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
                 $email = isset($item['email']['S']) ? $item['email']['S'] : ($item['correo']['S'] ?? '');
                 $telefono = isset($item['telefono']['S']) ? $item['telefono']['S'] : null;
-                $createdAt = isset($item['createdAt']['S'])
-                    ? $item['createdAt']['S']
-                    : (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null);
+                $createdAt = $this->extractCreatedAtFromItem($item);
 
                 return new Request(
                     $item['nombre']['S'] ?? '',
@@ -215,16 +224,46 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                     ':id' => ['S' => $id],
                 ],
                 'Limit' => 1,
+                'ConsistentRead' => true,
             ]);
             if (!empty($result['Items'])) {
                 $item = $result['Items'][0];
+                $createdAtKey = null;
+                if (isset($item['created_at']['N'])) {
+                    $createdAtKey = ['N' => $item['created_at']['N']];
+                } elseif (isset($item['created_at']['S'])) {
+                    $createdAtKey = ['S' => $item['created_at']['S']];
+                } elseif (isset($item['createdAt']['S'])) {
+                    $createdAtKey = ['N' => (string)strtotime($item['createdAt']['S'])];
+                }
+                if (!isset($item['email']['S']) || $createdAtKey === null) {
+                    return null;
+                }
                 return [
                     'email' => ['S' => $item['email']['S']],
-                    'created_at' => ['N' => $item['created_at']['N']],
+                    'created_at' => $createdAtKey,
                 ];
             }
         } catch (AwsException $e) {
             error_log('DynamoDbRequestRepository Error - resolveKeysById: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    private function extractCreatedAtFromItem(array $item): ?string
+    {
+        if (isset($item['createdAt']['S']) && is_string($item['createdAt']['S'])) {
+            return $item['createdAt']['S'];
+        }
+        if (isset($item['created_at']['N']) && is_string($item['created_at']['N'])) {
+            return date('Y-m-d H:i:s', (int)$item['created_at']['N']);
+        }
+        if (isset($item['created_at']['S']) && is_string($item['created_at']['S'])) {
+            $val = $item['created_at']['S'];
+            if (ctype_digit($val)) {
+                return date('Y-m-d H:i:s', (int)$val);
+            }
+            return $val;
         }
         return null;
     }

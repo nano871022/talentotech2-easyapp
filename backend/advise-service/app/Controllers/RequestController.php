@@ -41,6 +41,11 @@ class RequestController
 
         try {
             $newRequest = $this->getService()->createRequest($nombre, $correo, $telefono, $idiomas);
+            if ($newRequest === null) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Internal Server Error', 'message' => 'Could not persist request.']);
+                return;
+            }
             http_response_code(201);
             echo json_encode([
                 'status' => 'success',
