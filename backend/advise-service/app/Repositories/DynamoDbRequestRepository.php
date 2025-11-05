@@ -34,7 +34,7 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
                 'TableName' => $this->tableName,
                 'Item' => [
                     // Table keys
-                    'email'      => ['S' => $request->getCorreo()],
+                    'email'      => ['S' => $request->getEmail()],
                     'created_at' => ['N' => (string)$timestamp],
 
                     // Non-key attributes (retain existing ones for compatibility)
@@ -66,14 +66,20 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
 
             foreach ($result['Items'] as $item) {
                 $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
-                
+                $email = isset($item['email']['S']) ? $item['email']['S'] : ($item['correo']['S'] ?? '');
+                $telefono = isset($item['telefono']['S']) ? $item['telefono']['S'] : null;
+                $createdAt = isset($item['createdAt']['S'])
+                    ? $item['createdAt']['S']
+                    : (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null);
+
                 $requests[] = new Request(
-                    $item['nombre']['S'],
-                    $item['correo']['S'],
-                    $item['telefono']['S'],
-                    $item['id']['S'],
-                    $item['estado']['S'],
-                    $item['createdAt']['S'],
+                    $item['nombre']['S'] ?? '',
+                    $item['correo']['S'] ?? $email,
+                    $email,
+                    $telefono,
+                    $item['id']['S'] ?? null,
+                    $item['estado']['S'] ?? 'pending',
+                    $createdAt,
                     $idiomas
                 );
             }
@@ -103,14 +109,20 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
             if (!empty($result['Items'])) {
                 $item = $result['Items'][0];
                 $idiomas = !empty($item['idiomas']['S']) ? json_decode($item['idiomas']['S'], true) : null;
-                
+                $email = isset($item['email']['S']) ? $item['email']['S'] : ($item['correo']['S'] ?? '');
+                $telefono = isset($item['telefono']['S']) ? $item['telefono']['S'] : null;
+                $createdAt = isset($item['createdAt']['S'])
+                    ? $item['createdAt']['S']
+                    : (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null);
+
                 return new Request(
-                    $item['nombre']['S'],
-                    $item['correo']['S'],
-                    $item['telefono']['S'],
-                    $item['id']['S'],
-                    $item['estado']['S'],
-                    $item['createdAt']['S'] ?? (isset($item['created_at']['N']) ? date('Y-m-d H:i:s', (int)$item['created_at']['N']) : null),
+                    $item['nombre']['S'] ?? '',
+                    $item['correo']['S'] ?? $email,
+                    $email,
+                    $telefono,
+                    $item['id']['S'] ?? null,
+                    $item['estado']['S'] ?? 'pending',
+                    $createdAt,
                     $idiomas
                 );
             }

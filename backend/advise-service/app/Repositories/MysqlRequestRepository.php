@@ -83,6 +83,7 @@ class MysqlRequestRepository implements RequestRepositoryInterface
                 $requests[] = new Request(
                     $row['nombre'],
                     $row['correo'],
+                    $row['correo'],
                     $row['telefono'],
                     $row['id'],
                     $row['estado'],
@@ -122,6 +123,7 @@ class MysqlRequestRepository implements RequestRepositoryInterface
                 
                  return new Request(
                     $row['nombre'],
+                    $row['correo'],
                     $row['correo'],
                     $row['telefono'],
                     $row['id'],
