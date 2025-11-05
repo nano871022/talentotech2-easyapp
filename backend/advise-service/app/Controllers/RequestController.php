@@ -58,7 +58,7 @@ class RequestController
                 http_response_code(409);
                 echo json_encode(['error' => 'Conflict', 'message' => 'The request could not be processed. The email may already exist.']);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Request Creation Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An unexpected error occurred while processing your request.']);
@@ -85,7 +85,7 @@ class RequestController
             http_response_code(200);
             echo json_encode($formattedRequests);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Fetch Requests Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching requests.']);
@@ -113,7 +113,7 @@ class RequestController
                 http_response_code(404);
                 echo json_encode(['error' => 'Not Found', 'message' => 'Request summary not found.']);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Fetch Request Summary Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching the request summary.']);
@@ -143,7 +143,7 @@ class RequestController
                 http_response_code(404);
                 echo json_encode(['error' => 'Not Found', 'message' => 'Request not found.']);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Fetch Request Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An error occurred while fetching the request.']);
@@ -173,7 +173,7 @@ class RequestController
                 http_response_code(404);
                 echo json_encode(['error' => 'Update Failed', 'message' => 'Could not update contact status.']);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Update Status Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An unexpected error occurred.']);
@@ -222,7 +222,7 @@ class RequestController
                 http_response_code(400);
                 echo json_encode(['error' => 'Operation Failed', 'message' => 'Could not correct data.']);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Correct Data Error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error', 'message' => 'An unexpected error occurred.']);

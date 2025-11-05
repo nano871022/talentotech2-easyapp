@@ -13,15 +13,16 @@ class DynamoDbRequestRepository implements RequestRepositoryInterface
 
     public function __construct()
     {
+        $region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION') ?? 'us-east-1';
         $this->dynamoDb = new DynamoDbClient([
-            'region'  => $_ENV['AWS_REGION'],
+            'region'  => $region,
             'version' => 'latest',
             'credentials' => [
                 'key'    => $_ENV['AWS_ACCESS_KEY_DYNAMO_USER'],
                 'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_DYNAMO_USER'],
             ],
         ]);
-        $this->tableName = 'Language-Advisory-Platform-requests';
+        $this->tableName = $_ENV['DYNAMODB_TABLE_REQUESTS'] ?? getenv('DYNAMODB_TABLE_REQUESTS') ?? 'Language-Advisory-Platform-requests';
     }
 
     public function save(Request $request): ?Request

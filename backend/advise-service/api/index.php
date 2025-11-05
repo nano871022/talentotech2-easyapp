@@ -123,7 +123,7 @@ if ($handler) {
         $controller = new $controllerName();
         $controller->$methodName();
         error_log('Controller method executed successfully');
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
         error_log('API Dispatch Error: ' . $e->getMessage());
         echo json_encode(['error' => 'Internal Server Error', 'message' => 'The server encountered an unexpected condition.']);

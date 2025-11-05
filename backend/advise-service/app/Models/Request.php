@@ -13,7 +13,7 @@ class Request
         private string $correo,
         private string $email,
         private ?string $telefono,
-        private ?int $id = null,
+        private int|string|null $id = null,
         private string $estado = 'nuevo',
         private ?string $created_at = null,
         private ?array $idiomas = null
@@ -21,7 +21,7 @@ class Request
     }
 
     // --- Getters ---
-    public function getId(): ?int
+    public function getId(): int|string|null
     {
         return $this->id;
     }
