@@ -41,23 +41,18 @@ class RequestController
 
         try {
             $newRequest = $this->getService()->createRequest($nombre, $correo, $telefono, $idiomas);
-            if ($newRequest) {
-                http_response_code(201);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Request submitted successfully.',
-                    'request' => [
-                        'id' => $newRequest->getId(),
-                        'nombre' => $newRequest->getNombre(),
-                        'correo' => $newRequest->getCorreo(),
-                        'telefono' => $newRequest->getTelefono(),
-                        'idiomas' => $newRequest->getIdiomas()
-                    ]
-                ]);
-            } else {
-                http_response_code(409);
-                echo json_encode(['error' => 'Conflict', 'message' => 'The request could not be processed. The email may already exist.']);
-            }
+            http_response_code(201);
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Request submitted successfully.',
+                'request' => [
+                    'id' => $newRequest->getId(),
+                    'nombre' => $newRequest->getNombre(),
+                    'correo' => $newRequest->getCorreo(),
+                    'telefono' => $newRequest->getTelefono(),
+                    'idiomas' => $newRequest->getIdiomas()
+                ]
+            ]);
         } catch (\Throwable $e) {
             error_log('Request Creation Error: ' . $e->getMessage());
             http_response_code(500);
